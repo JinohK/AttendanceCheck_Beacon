@@ -74,6 +74,7 @@
         android:orientation="horizontal">
 
         <RadioGroup
+            android:id="@+id/radioGroup"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_width="match_parent"
