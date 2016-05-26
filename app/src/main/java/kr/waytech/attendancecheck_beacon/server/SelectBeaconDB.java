@@ -9,10 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,8 +20,8 @@ import java.util.ArrayList;
  */
 public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
     public static final String strUrl = "http://waytech.kr/AtdCheck/selectBeacon.php";
-    public static final int HANDLE_SELECT_FAIL = 2324;
-    public static final int HANDLE_SELECT_OK = 1324;
+    public static final int HANDLE_SELECT_FAIL = 23425;
+    public static final int HANDLE_SELECT_OK = 65478;
 
     private ArrayList<BeaconData> data;
     private Handler mHandler;
@@ -58,13 +55,13 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
                     conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                     conn.connect();
 
-                    OutputStream outputStream = conn.getOutputStream();
-                    BufferedWriter writer = new BufferedWriter(
-                            new OutputStreamWriter(outputStream, "UTF-8"));
-                    writer.write("id=" + v[0]);
-                    writer.write("&pwd=" + v[1]);
-                    writer.flush();
-                    writer.close();
+//                    OutputStream outputStream = conn.getOutputStream();
+//                    BufferedWriter writer = new BufferedWriter(
+//                            new OutputStreamWriter(outputStream, "UTF-8"));
+//                    writer.write("id=" + v[0]);
+//                    writer.write("&pwd=" + v[1]);
+//                    writer.flush();
+//                    writer.close();
 
                 }
                 Log.d(TAG, conn.getResponseCode() + "");
@@ -98,6 +95,9 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
         String uuid;
         int major;
         int minor;
+        String className;
+        String classEdu;
+        int classNumber;
 
 
         try {
@@ -109,7 +109,11 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
                 uuid = jo.getString("BEACON_UUID");
                 major = jo.getInt("BEACON_MAJOR");
                 minor = jo.getInt("BEACON_MINOR");
-                data.add(new BeaconData(index, uuid, major, minor));
+                className = jo.getString("CLASS_NAME");
+                classEdu = jo.getString("CLASS_EDU");
+                classNumber= jo.getInt("CLASS_NUMBER");
+
+                data.add(new BeaconData(index, uuid, major, minor, className, classEdu, classNumber));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();
 

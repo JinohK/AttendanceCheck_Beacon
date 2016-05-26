@@ -20,6 +20,15 @@ public class BeaconData {
         this.minor = minor;
     }
 
+    public BeaconData(int index, String uuid, int major, int minor, String className, String classEdu, int classNumber) {
+        this.index = index;
+        this.uuid = uuid;
+        this.major = major;
+        this.minor = minor;
+        this.className = className;
+        this.classEdu = classEdu;
+        this.classNumber = classNumber;
+    }
 
     public int getIndex() {
         return index;
