@@ -2,6 +2,7 @@ package kr.waytech.attendancecheck_beacon.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -15,6 +16,7 @@ import com.estimote.sdk.Region;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.waytech.attendancecheck_beacon.other.Utils;
 import kr.waytech.attendancecheck_beacon.server.BeaconData;
 import kr.waytech.attendancecheck_beacon.server.SelectBeaconDB;
 
@@ -30,6 +32,8 @@ public class BeaconService extends Service {
 
     private static ArrayList<BeaconData> beaconDataArrayList;
 
+    private SharedPreferences pref;
+
 
     @Nullable
     @Override
@@ -44,6 +48,7 @@ public class BeaconService extends Service {
         Log.d("BeaconService", "OnCreate");
         mRegion = new Region("beacon", null, null, null);
         mThread.start();
+        pref = getSharedPreferences(getPackageName(), 0);
 
         startScan();
     }
@@ -87,6 +92,10 @@ public class BeaconService extends Service {
                     for(int j = 0 ; j < beaconDataArrayList.size() ; j++){
                         BeaconData beaconData = beaconDataArrayList.get(j);
                         if(equalsBeacon(beacon, beaconData)){
+                            String type = pref.getString(Utils.PREF_ID, null);
+                            if(type == null) break;
+
+
 
                         }
                     }

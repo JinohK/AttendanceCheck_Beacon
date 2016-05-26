@@ -16,6 +16,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.SignActivity"/>
+        <activity android:name=".activity.EduActivity"/>
+        <activity android:name=".activity.StdActivity"/>
+        <service android:name=".service.BeaconService"/>
     </application>
 
 </manifest>

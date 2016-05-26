@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tvClass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="현재 강의실"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/btnBeaconSetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="비콘 설정"/>
+    <Button
+        android:id="@+id/btnAttend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="출결 관리"/>
+    <Button
+        android:id="@+id/btnNotice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="공지사항"/>
+    <Button
+        android:id="@+id/btnNoticeWrite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="공지사항 쓰기"/>
+    <Button
+        android:id="@+id/btnSetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="설정"/>
+
+</LinearLayout>

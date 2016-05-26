@@ -1,6 +1,7 @@
 package kr.waytech.attendancecheck_beacon.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,24 +28,43 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     private Button btnLogin;
     private TextView tvSign;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor edit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
         findById();
         init();
+
+        if (pref.getBoolean(Utils.PREF_AUTOLOGIN, false)) {
+            String type = pref.getString(Utils.PREF_TYPE, null);
+            Intent intent = null;
+            if (type == null)
+                return;
+            else if (type.equals(Utils.USER_STD))
+                intent = new Intent(LoginActivity.this, StdActivity.class);
+            else if (type.equals(Utils.USER_EDU))
+                intent = new Intent(LoginActivity.this, EduActivity.class);
+
+            startActivity(intent);
+            finish();
+        }
     }
 
 
-    private void findById(){
+    private void findById() {
         etId = (EditText) findViewById(R.id.etId);
         etPassword = (EditText) findViewById(R.id.etPassword);
         btnLogin = (Button) findViewById(R.id.btnLogin);
         tvSign = (TextView) findViewById(R.id.tvSign);
     }
 
-    private void init(){
+    private void init() {
+        pref = getSharedPreferences(getPackageName(), 0);
+        edit = pref.edit();
+
         tvSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,11 +75,11 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Utils.isOnline(LoginActivity.this)){
+                if (!Utils.isOnline(LoginActivity.this)) {
                     Toast.makeText(LoginActivity.this, "인터넷 상태를 확인해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(etId.getText().length() == 0 || etPassword.getText().length() == 0){
+                if (etId.getText().length() == 0 || etPassword.getText().length() == 0) {
                     Toast.makeText(LoginActivity.this, "빈칸을 입력해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -69,16 +89,28 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what){
+            switch (msg.what) {
                 case SelectUserDB.HANDLE_SELECT_OK:
                     UserData data = (UserData) msg.obj;
-                    if(data.getType().equals("학생"))
-                        Toast.makeText(LoginActivity.this, "로그인 성공-학생", Toast.LENGTH_SHORT).show();
-                    else
-                        Toast.makeText(LoginActivity.this, "로그인 성공-교직원", Toast.LENGTH_SHORT).show();
+                    edit.putString(Utils.PREF_ID, data.getId());
+                    edit.putString(Utils.PREF_TYPE, data.getType());
+                    edit.putBoolean(Utils.PREF_AUTOLOGIN, true);
+                    edit.commit();
+
+                    Intent intent = null;
+                    if(data.getType().equals(Utils.USER_STD))
+                        intent = new Intent(LoginActivity.this, StdActivity.class);
+                    else if(data.getType().equals(Utils.USER_EDU))
+                        intent = new Intent(LoginActivity.this, EduActivity.class);
+
+                    Toast.makeText(LoginActivity.this, data.getName() + "님 환영합니다.", Toast.LENGTH_SHORT).show();
+
+                    startActivity(intent);
+                    finish();
+
                     break;
 
                 case SelectUserDB.HANDLE_SELECT_FAIL:

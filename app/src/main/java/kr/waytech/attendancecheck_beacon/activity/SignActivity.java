@@ -47,7 +47,7 @@ public class SignActivity extends AppCompatActivity {
         btnSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utils.isOnline(SignActivity.this)) {
+                if (!Utils.isOnline(SignActivity.this)) {
                     Toast.makeText(SignActivity.this, "인터넷 상태를 확인해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }

@@ -8,6 +8,10 @@ public class BeaconData {
     private String uuid;
     private int major;
     private int minor;
+    private String className;
+    private String classEdu;
+    private int classNumber;
+
 
     public BeaconData(int index, String uuid, int major, int minor) {
         this.index = index;
