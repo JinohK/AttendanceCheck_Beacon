@@ -3,6 +3,7 @@ package kr.waytech.attendancecheck_beacon.server;
 /**
  * Created by waytech on 16. 5. 16..
  * 회원 데이터
+ * 아이디, 이름, 유저타입(학생, 교직원)
  */
 public class UserData {
 

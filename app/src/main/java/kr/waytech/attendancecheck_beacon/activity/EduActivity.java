@@ -7,6 +7,7 @@ import kr.waytech.attendancecheck_beacon.R;
 
 /**
  * Created by JinOh on 2016-05-26.
+ * 교직원 액티비티
  */
 public class EduActivity extends AppCompatActivity {
 

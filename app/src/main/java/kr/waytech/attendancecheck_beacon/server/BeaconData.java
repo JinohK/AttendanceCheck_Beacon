@@ -2,6 +2,7 @@ package kr.waytech.attendancecheck_beacon.server;
 
 /**
  * Created by Kim-Jinoh on 16. 5. 20..
+ * 비콘 데이터
  */
 public class BeaconData {
     private int index;
@@ -27,6 +28,30 @@ public class BeaconData {
         this.minor = minor;
         this.className = className;
         this.classEdu = classEdu;
+        this.classNumber = classNumber;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getClassEdu() {
+        return classEdu;
+    }
+
+    public void setClassEdu(String classEdu) {
+        this.classEdu = classEdu;
+    }
+
+    public int getClassNumber() {
+        return classNumber;
+    }
+
+    public void setClassNumber(int classNumber) {
         this.classNumber = classNumber;
     }
 
@@ -60,5 +85,20 @@ public class BeaconData {
 
     public void setMinor(int minor) {
         this.minor = minor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        BeaconData data = (BeaconData) o;
+
+        if(this.uuid.equals(data.getUuid()) &&
+                this.major == data.getMajor() &&
+                this.minor == data.getMinor() &&
+                this.className.equals(data.getClassName())){
+            return true;
+        }else{
+            return false;
+        }
+
     }
 }

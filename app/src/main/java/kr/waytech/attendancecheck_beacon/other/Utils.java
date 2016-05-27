@@ -5,6 +5,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.util.Calendar;
+
 /**
  * Created by Kim-Jinoh on 16. 5. 20..
  */
@@ -37,5 +39,18 @@ public class Utils {
         }
 
         return false;
+    }
+
+
+    public static String calToStr(Calendar cal) {
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DATE);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
+
+        String str = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
+        return str;
     }
 }

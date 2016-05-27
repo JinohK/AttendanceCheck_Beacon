@@ -38,15 +38,16 @@ public class LoginActivity extends AppCompatActivity {
         findById();
         init();
 
+        // 자동로그인
         if (pref.getBoolean(Utils.PREF_AUTOLOGIN, false)) {
             String type = pref.getString(Utils.PREF_TYPE, null);
             Intent intent = null;
-            if (type == null)
-                return;
-            else if (type.equals(Utils.USER_STD))
+            if (type.equals(Utils.USER_STD))
                 intent = new Intent(LoginActivity.this, StdActivity.class);
             else if (type.equals(Utils.USER_EDU))
                 intent = new Intent(LoginActivity.this, EduActivity.class);
+            else
+                return;
 
             startActivity(intent);
             finish();
@@ -101,16 +102,17 @@ public class LoginActivity extends AppCompatActivity {
                     edit.commit();
 
                     Intent intent = null;
-                    if(data.getType().equals(Utils.USER_STD))
+                    if (data.getType().equals(Utils.USER_STD))
                         intent = new Intent(LoginActivity.this, StdActivity.class);
-                    else if(data.getType().equals(Utils.USER_EDU))
+                    else if (data.getType().equals(Utils.USER_EDU))
                         intent = new Intent(LoginActivity.this, EduActivity.class);
+                    else
+                        return;
 
                     Toast.makeText(LoginActivity.this, data.getName() + "님 환영합니다.", Toast.LENGTH_SHORT).show();
 
                     startActivity(intent);
                     finish();
-
                     break;
 
                 case SelectUserDB.HANDLE_SELECT_FAIL:
