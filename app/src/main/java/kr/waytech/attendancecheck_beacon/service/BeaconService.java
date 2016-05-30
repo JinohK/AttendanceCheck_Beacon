@@ -17,11 +17,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import kr.waytech.attendancecheck_beacon.activity.StdActivity;
 import kr.waytech.attendancecheck_beacon.other.Utils;
-import kr.waytech.attendancecheck_beacon.server.BeaconData;
+import kr.waytech.attendancecheck_beacon.server.ClassData;
 import kr.waytech.attendancecheck_beacon.server.InsertAtdDB;
-import kr.waytech.attendancecheck_beacon.server.SelectBeaconDB;
+import kr.waytech.attendancecheck_beacon.server.SelectClassDB;
 import kr.waytech.attendancecheck_beacon.server.UpdateAtdDB;
 
 /**
@@ -34,16 +33,18 @@ public class BeaconService extends Service {
 
     public static final String INTENT_CLASS_NAME = "CLASS_NAME";
     public static final String INTENT_CLASS_NUMBER = "CLASS_NUMBER";
+    public static final String INTENT_CLASS_START = "CLASS_START";
+    public static final String INTENT_CLASS_END = "CLASS_END";
 
     private static final String TAG = "BeaconService";
     public static final String BROADCAST_BEACON = "BEACON";
 
-    private static ArrayList<BeaconData> beaconDataArrayList;
+    private static ArrayList<ClassData> classDataArrayList;
 
     private SharedPreferences pref;
 
     private Calendar calInTime;
-    private BeaconData scanBeacon;
+    private Beacon scanBeacon;
 
     private boolean threadRun;
 
@@ -64,7 +65,8 @@ public class BeaconService extends Service {
         mThread.start();
         pref = getSharedPreferences(getPackageName(), 0);
         calInTime = null;
-        beaconDataArrayList = new ArrayList<>();
+        classDataArrayList = new ArrayList<>();
+        beaconManager = new BeaconManager(this);
     }
 
     /**
@@ -75,7 +77,7 @@ public class BeaconService extends Service {
         public void run() {
             try {
                 while (threadRun) {
-                    new SelectBeaconDB(mHandler).execute();
+                    new SelectClassDB(mHandler).execute();
                     sleep(1000 * 60);
                 }
             } catch (InterruptedException e) {
@@ -88,8 +90,8 @@ public class BeaconService extends Service {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case SelectBeaconDB.HANDLE_SELECT_OK:
-                    beaconDataArrayList = (ArrayList<BeaconData>) msg.obj;
+                case SelectClassDB.HANDLE_SELECT_OK:
+                    classDataArrayList = (ArrayList<ClassData>) msg.obj;
                     break;
 
                 case InsertAtdDB.HANDLE_INSERT_OK:
@@ -101,7 +103,7 @@ public class BeaconService extends Service {
 
                 case UpdateAtdDB.HANDLE_INSERT_FAIL:
                 case InsertAtdDB.HANDLE_INSERT_FAIL:
-                case SelectBeaconDB.HANDLE_SELECT_FAIL:
+                case SelectClassDB.HANDLE_SELECT_FAIL:
 
                     break;
             }
@@ -115,36 +117,92 @@ public class BeaconService extends Service {
 
                 if (list.size() == 0) return;
 
-                for (int i = 0; i < list.size(); i++) {
-                    Beacon beacon = list.get(i);
-                    for (int j = 0; j < beaconDataArrayList.size(); j++) {
-                        BeaconData beaconData = beaconDataArrayList.get(j);
-                        if (equalsBeacon(beacon, beaconData)) {
-                            String id = pref.getString(Utils.PREF_ID, null);
-                            String type = pref.getString(Utils.PREF_TYPE, null);
-                            scanBeacon = beaconData;
-                            if (type.equals(Utils.USER_STD)) {
+                // 출입 체크
+                if (calInTime == null) {
 
-                                if (calInTime == null) {
+                    for (int i = 0; i < list.size(); i++) {
+                        Beacon beacon = list.get(i);
+                        for (int j = 0; j < classDataArrayList.size(); j++) {
+                            ClassData classData = classDataArrayList.get(j);
+                            if (equalsBeacon(beacon, classData)) {
+                                String id = pref.getString(Utils.PREF_ID, null);
+                                String type = pref.getString(Utils.PREF_TYPE, null);
+                                scanBeacon = beacon;
+                                if (type.equals(Utils.USER_STD)) {
+
+                                    Log.d(TAG, "1");
+                                    char dayWeek = 'a';
+                                    Calendar cal = Calendar.getInstance();
+                                    switch (cal.get(Calendar.DAY_OF_WEEK)) {
+                                        case 1:
+                                            dayWeek = '일';
+                                            break;
+                                        case 2:
+                                            dayWeek = '월';
+                                            break;
+                                        case 3:
+                                            dayWeek = '화';
+                                            break;
+                                        case 4:
+                                            dayWeek = '수';
+                                            break;
+                                        case 5:
+                                            dayWeek = '목';
+                                            break;
+                                        case 6:
+                                            dayWeek = '금';
+                                            break;
+                                        case 7:
+                                            dayWeek = '토';
+                                            break;
+                                    }
+
+                                    // 현재 요일과 강의 요일 비교
+                                    String strWeek = classData.getClassDayWeek();
+                                    boolean check = false;
+                                    for(int z = 0; i < strWeek.length(); z++){
+                                        char str = strWeek.charAt(z);
+                                        if(str == dayWeek){
+                                            check = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!check) return;
+
+                                    Log.d(TAG, "2");
+                                    // 현재 시간과 강의 시간 비교
+                                    Log.d(TAG, "start : " + Utils.calToStr(classData.getCalStart()) +" "+ Utils.calToStr(cal));
+                                    if (classData.getCalStart().after(cal)) return;
+                                    Log.d(TAG, "3");
+                                    Log.d(TAG, "end : " + Utils.calToStr(classData.getCalEnd()) +" "+ Utils.calToStr(cal));
+                                    if(classData.getCalEnd().before(cal)) return;
+                                    Log.d(TAG, "4");
+
                                     calInTime = Calendar.getInstance();
-                                    new InsertAtdDB(mHandler).execute(id, Utils.calToStr(calInTime), beaconData.getClassName());
+                                    new InsertAtdDB(mHandler).execute(id, Utils.calToStr(calInTime), classData.getClassName());
+
+                                    Intent intent = new Intent(BROADCAST_BEACON);
+                                    intent.putExtra(INTENT_CLASS_NAME, classData.getClassName());
+                                    intent.putExtra(INTENT_CLASS_NUMBER, classData.getClassNumber());
+                                    intent.putExtra(INTENT_CLASS_START, classData.getCalStart());
+                                    intent.putExtra(INTENT_CLASS_END, classData.getCalEnd());
+                                    sendBroadcast(intent);
+                                    stopScan();
+
+                                } else {
+                                    return;
                                 }
 
-                                Intent intent = new Intent();
-                                intent.setAction(StdActivity.RECEIVER_BEACON);
-                                intent.putExtra(INTENT_CLASS_NAME, beaconData.getClassName());
-                                intent.putExtra(INTENT_CLASS_NUMBER, beaconData.getClassNumber());
-                                sendBroadcast(intent);
 
-                            } else {
-                                return;
                             }
-
-
                         }
                     }
-                }
 
+                }
+                // 퇴실 체크
+                else {
+
+                }
 
             }
         });
@@ -162,13 +220,13 @@ public class BeaconService extends Service {
      * 같은 비컨인지 체크
      *
      * @param beacon
-     * @param beaconData
+     * @param classData
      * @return boolean
      */
-    private boolean equalsBeacon(Beacon beacon, BeaconData beaconData) {
-        if (beacon.getProximityUUID().toString().toUpperCase().equals(beaconData.getUuid().toString().toUpperCase()) &&
-                beacon.getMajor() == beaconData.getMajor() &&
-                beacon.getMinor() == beaconData.getMinor())
+    private boolean equalsBeacon(Beacon beacon, ClassData classData) {
+        if (beacon.getProximityUUID().toString().toUpperCase().equals(classData.getUuid().toString().toUpperCase()) &&
+                beacon.getMajor() == classData.getMajor() &&
+                beacon.getMinor() == classData.getMinor())
             return true;
 
         return false;

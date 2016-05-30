@@ -8,7 +8,7 @@
         android:id="@+id/tvClass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="현재 강의실"
+        android:text="현재 강의실 : "
         android:textSize="20sp" />
 
     <Button

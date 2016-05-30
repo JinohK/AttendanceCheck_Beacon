@@ -1,9 +1,11 @@
 package kr.waytech.attendancecheck_beacon.activity;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +27,7 @@ public class SignActivity extends AppCompatActivity {
     private Button btnSign;
     private Button btnCancel;
     private String selectType;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,9 @@ public class SignActivity extends AppCompatActivity {
                     Toast.makeText(SignActivity.this, "모두 입력해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                progressDialog = new ProgressDialog(SignActivity.this);
+                progressDialog.show();
                 new InsertUserDB(mHandler).execute(etId.getText().toString(), etPassword.getText().toString(),
                         etName.getText().toString(), selectType);
 
@@ -89,6 +95,8 @@ public class SignActivity extends AppCompatActivity {
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            if(progressDialog.isShowing())
+                progressDialog.dismiss();
             switch (msg.what) {
                 case InsertUserDB.HANDLE_INSERT_OK:
                     Toast.makeText(SignActivity.this, "가입완료", Toast.LENGTH_SHORT).show();
@@ -101,6 +109,16 @@ public class SignActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Utils.closePopup(this);
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
 
 }

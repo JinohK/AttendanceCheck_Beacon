@@ -9,26 +9,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * Created by 진오 on 16. 5. 20..
- * DB Beacon 리스트 가져옴
+ * DB Class 리스트 가져옴
  */
-public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
-    public static final String strUrl = "http://waytech.kr/AtdCheck/selectBeacon.php";
+public class SelectClassDB extends AsyncTask<String, Integer, String> {
+    public static final String strUrl = "http://waytech.kr/AtdCheck/selectClass.php";
     public static final int HANDLE_SELECT_FAIL = 23425;
     public static final int HANDLE_SELECT_OK = 65478;
 
-    private ArrayList<BeaconData> data;
+    private ArrayList<ClassData> data = new ArrayList<>();
     private Handler mHandler;
-    private final String TAG = "SelectBeaconDB";
+    private final String TAG = "SelectClassDB";
 
 
-    public SelectBeaconDB(Handler mHandler) {
+    public SelectClassDB(Handler mHandler) {
         this.mHandler = mHandler;
     }
 
@@ -55,13 +58,12 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
                     conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                     conn.connect();
 
-//                    OutputStream outputStream = conn.getOutputStream();
-//                    BufferedWriter writer = new BufferedWriter(
-//                            new OutputStreamWriter(outputStream, "UTF-8"));
-//                    writer.write("id=" + v[0]);
-//                    writer.write("&pwd=" + v[1]);
-//                    writer.flush();
-//                    writer.close();
+                    OutputStream outputStream = conn.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(outputStream, "UTF-8"));
+                    writer.write("id=" + v[0]);
+                    writer.flush();
+                    writer.close();
 
                 }
                 Log.d(TAG, conn.getResponseCode() + "");
@@ -91,13 +93,15 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
 
 
     protected void onPostExecute(String str) {
-        int index;
         String uuid;
         int major;
         int minor;
         String className;
         String classEdu;
-        int classNumber;
+        String classNumber;
+        String classDayWeek;
+        String classStart;
+        String classEnd;
 
 
         try {
@@ -105,15 +109,18 @@ public class SelectBeaconDB extends AsyncTask<String, Integer, String> {
 
             for (int i = 0; i < root.length(); i++) {
                 JSONObject jo = root.getJSONObject(i);
-                index = jo.getInt("BEACON_INDEX");
-                uuid = jo.getString("BEACON_UUID");
-                major = jo.getInt("BEACON_MAJOR");
-                minor = jo.getInt("BEACON_MINOR");
                 className = jo.getString("CLASS_NAME");
                 classEdu = jo.getString("CLASS_EDU");
-                classNumber= jo.getInt("CLASS_NUMBER");
+                classNumber= jo.getString("CLASS_NUMBER");
+                classDayWeek = jo.getString("CLASS_DAYWEEK");
+                classStart = jo.getString("CLASS_START");
+                classEnd = jo.getString("CLASS_END");
+                uuid = jo.getString("CLASS_UUID");
+                major = jo.getInt("CLASS_MAJOR");
+                minor = jo.getInt("CLASS_MINOR");
 
-                data.add(new BeaconData(index, uuid, major, minor, className, classEdu, classNumber));
+                data.add(new ClassData(uuid, major, minor,
+                        className, classEdu, classNumber, classDayWeek, classStart, classEnd));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();
 

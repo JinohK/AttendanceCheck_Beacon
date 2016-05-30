@@ -3,18 +3,16 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvClass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="현재 강의실"
-        android:textSize="20sp" />
-
     <Button
-        android:id="@+id/btnBeaconSetting"
+        android:id="@+id/btnClassReg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="비콘 설정"/>
+        android:text="강의 등록"/>
+    <Button
+        android:id="@+id/btnClassList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="강의 목록"/>
     <Button
         android:id="@+id/btnAttend"
         android:layout_width="match_parent"

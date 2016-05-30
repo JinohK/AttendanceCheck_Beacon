@@ -1,7 +1,9 @@
 package kr.waytech.attendancecheck_beacon.other;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -44,7 +46,7 @@ public class Utils {
 
     public static String calToStr(Calendar cal) {
         int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH);
+        int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int min = cal.get(Calendar.MINUTE);
@@ -52,5 +54,23 @@ public class Utils {
 
         String str = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
         return str;
+    }
+
+    // 종료시 팝업 창
+    public static void closePopup(final Activity activity) {
+        new AlertDialog.Builder(activity)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("BYE")
+                .setMessage("종료 하시겠습니까?")
+                .setPositiveButton(activity.getString(android.R.string.yes),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                activity.moveTaskToBack(true);
+                                activity.finish();
+                            }
+                        }
+                ).setNegativeButton(activity.getString(android.R.string.no), null).show(); //��ҹ�ư�� ��������..
+
     }
 }
