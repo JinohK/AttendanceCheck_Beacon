@@ -13,8 +13,9 @@ public class ClassData implements Serializable {
     private int major;
     private int minor;
     private String className;       // 강의명
-    private String classEdu;        // 교수님이름
-    private String classNumber;        // 강의실
+    private String classEdu;        // 교수님아이디
+    private String classEduName;    // 교수님 이름
+    private String classNumber;     // 강의실
     private String classDayWeek;    // 강의요일
     private String classStart;      // 강의시작시간
     private String classEnd;        // 강의종료시간
@@ -30,7 +31,7 @@ public class ClassData implements Serializable {
     }
 
 
-    public ClassData(String uuid, int major, int minor, String className, String classEdu, String classNumber, String classDayWeek, String classStart, String classEnd) {
+    public ClassData(String uuid, int major, int minor, String className, String classEdu, String classNumber, String classDayWeek, String classStart, String classEnd, String classEduName) {
         this.uuid = uuid;
         this.major = major;
         this.minor = minor;
@@ -40,10 +41,18 @@ public class ClassData implements Serializable {
         this.classDayWeek = classDayWeek;
         this.classStart = classStart;
         this.classEnd = classEnd;
-
+        this.classEduName = classEduName;
 
     }
 
+
+    public String getClassEduName() {
+        return classEduName;
+    }
+
+    public void setClassEduName(String classEduName) {
+        this.classEduName = classEduName;
+    }
 
     public Calendar getCalStart() {
         calStart = Calendar.getInstance();

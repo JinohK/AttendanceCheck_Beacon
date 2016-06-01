@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by 진오 on 16. 5. 16..
@@ -58,9 +60,10 @@ public class InsertAtdDB extends AsyncTask<String, Integer, String> {
                 OutputStream outputStream = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(outputStream, "UTF-8"));
-                v[1] = v[1].replace("+", "%2B");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = format.parse(v[1]);
                 writer.write("id=" + v[0]);
-                writer.write("&in=" + v[1]);
+                writer.write("&in=" + format.format(date));
                 writer.write("&class=" + v[2]);
 
                 writer.flush();
@@ -92,7 +95,8 @@ public class InsertAtdDB extends AsyncTask<String, Integer, String> {
 
     protected void onPostExecute(String str) {
 
-        if (str.contains("ERROR")) isError = true;
+        if (str.contains("ERROR") || str.contains("INTIME"))
+            isError = true;
 
 
         if (!isError) {

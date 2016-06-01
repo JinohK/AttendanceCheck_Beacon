@@ -31,13 +31,11 @@ public class BeaconService extends Service {
     private BeaconManager beaconManager;
     private Region mRegion;
 
-    public static final String INTENT_CLASS_NAME = "CLASS_NAME";
-    public static final String INTENT_CLASS_NUMBER = "CLASS_NUMBER";
-    public static final String INTENT_CLASS_START = "CLASS_START";
-    public static final String INTENT_CLASS_END = "CLASS_END";
+    public static final String INTENT_CLASS = "CLASSINTENT";
 
     private static final String TAG = "BeaconService";
-    public static final String BROADCAST_BEACON = "BEACON";
+    public static final String BROADCAST_BEACON_IN = "BEACONIN";
+    public static final String BROADCAST_BEACON_OUT = "BEACONOUT";
 
     private static ArrayList<ClassData> classDataArrayList;
 
@@ -45,8 +43,23 @@ public class BeaconService extends Service {
 
     private Calendar calInTime;
     private Beacon scanBeacon;
+    private ClassData scanClass;
 
     private boolean threadRun;
+
+
+    // 퇴실 쓰레드 sleep 타임
+    private final int TIMEOUT_SLEEP_CYCLE = 5 * 1000;
+
+    // 얼마 동안 비컨이 안잡히면 퇴실조치 할건지
+    private final int TIMEOUT_OUT = 10 * 1000;
+    private int mTimeout;
+
+    // 입실 / 퇴실 구분 TYPE_IN=입실함 (퇴실체크진행)
+    private int mTypeInOut;
+
+    // 입실 했을때의 타입
+    private final int TYPE_IN = 1;
 
 
     @Nullable
@@ -67,6 +80,8 @@ public class BeaconService extends Service {
         calInTime = null;
         classDataArrayList = new ArrayList<>();
         beaconManager = new BeaconManager(this);
+        mTimeout = 0;
+        mTypeInOut = 0;
     }
 
     /**
@@ -95,20 +110,101 @@ public class BeaconService extends Service {
                     break;
 
                 case InsertAtdDB.HANDLE_INSERT_OK:
+                    Log.d(TAG, "입실");
+                    mTypeInOut = TYPE_IN;
+                    // 퇴실 체크 쓰레드 실행
+                    new Thread(){
+                        boolean run = true;
+                        @Override
+                        public void run() {
+                            while (threadRun) {
+                                while (run) {
+                                    try {
+                                        sleep(TIMEOUT_SLEEP_CYCLE);
+                                        mTimeout += TIMEOUT_SLEEP_CYCLE;
+                                        Log.d(TAG, "TIMEOUT : " + mTimeout);
+                                        if (mTimeout == TIMEOUT_OUT) {
+                                            Log.d(TAG, "퇴실");
+                                            new UpdateAtdDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""), Utils.calToStr(calInTime),
+                                                    Utils.calToStr(Calendar.getInstance()), scanClass.getClassName());
+                                            stopScan();
+                                            run = false;
+                                            mTimeout = 0;
+                                            mTypeInOut = 0;
+                                            calInTime = null;
+                                            sendBroadcast(new Intent(BROADCAST_BEACON_OUT));
+                                        }
+
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                    }.start();
                     break;
 
                 case UpdateAtdDB.HANDLE_INSERT_OK:
+
                     break;
 
+                case InsertAtdDB.HANDLE_INSERT_FAIL:
+                    String str = (String) msg.obj;
+                    Log.d(TAG, "insertfail : " +str);
+                    int index = str.lastIndexOf(";");
+                    String subStr = str.substring(index+1, str.length());
+                    Log.d(TAG, "insertfail : " + subStr);
+
+                    // 이미 입실시간이 입력되었을시 입실시간 저장
+                    if(str.contains("INTIME")){
+                        subStr = subStr.replace("[INTIME]", "");
+                        Log.d(TAG, "insertfail intime : " + subStr);
+                        calInTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(subStr.substring(11, 13)));
+                        calInTime.set(Calendar.MINUTE, Integer.parseInt(subStr.substring(14, 16)));
+                        calInTime.set(Calendar.SECOND, Integer.parseInt(subStr.substring(17, 19)));
+
+                        mTypeInOut = TYPE_IN;
+                        // 퇴실 체크 쓰레드 실행
+                        new Thread(){
+                            boolean run = true;
+                            @Override
+                            public void run() {
+                                while (threadRun) {
+                                    while (run) {
+                                        try {
+                                            sleep(TIMEOUT_SLEEP_CYCLE);
+                                            mTimeout += TIMEOUT_SLEEP_CYCLE;
+                                            Log.d(TAG, "TIMEOUT : " + mTimeout);
+                                            if (mTimeout == TIMEOUT_OUT) {
+                                                Log.d(TAG, "퇴실");
+                                                new UpdateAtdDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""), Utils.calToStr(calInTime),
+                                                        Utils.calToStr(Calendar.getInstance()), scanClass.getClassName());
+                                                stopScan();
+                                                run = false;
+                                                mTimeout = 0;
+                                                mTypeInOut = 0;
+                                                calInTime = null;
+                                                sendBroadcast(new Intent(BROADCAST_BEACON_OUT));
+                                            }
+
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        }.start();
+                    }
+                    break;
 
                 case UpdateAtdDB.HANDLE_INSERT_FAIL:
-                case InsertAtdDB.HANDLE_INSERT_FAIL:
                 case SelectClassDB.HANDLE_SELECT_FAIL:
 
                     break;
             }
         }
     };
+
 
     private void startScan() {
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
@@ -118,7 +214,7 @@ public class BeaconService extends Service {
                 if (list.size() == 0) return;
 
                 // 출입 체크
-                if (calInTime == null) {
+                if (mTypeInOut != TYPE_IN) {
 
                     for (int i = 0; i < list.size(); i++) {
                         Beacon beacon = list.get(i);
@@ -127,7 +223,6 @@ public class BeaconService extends Service {
                             if (equalsBeacon(beacon, classData)) {
                                 String id = pref.getString(Utils.PREF_ID, null);
                                 String type = pref.getString(Utils.PREF_TYPE, null);
-                                scanBeacon = beacon;
                                 if (type.equals(Utils.USER_STD)) {
 
                                     Log.d(TAG, "1");
@@ -160,7 +255,7 @@ public class BeaconService extends Service {
                                     // 현재 요일과 강의 요일 비교
                                     String strWeek = classData.getClassDayWeek();
                                     boolean check = false;
-                                    for(int z = 0; i < strWeek.length(); z++){
+                                    for(int z = 0; z < strWeek.length()-1; z++){
                                         char str = strWeek.charAt(z);
                                         if(str == dayWeek){
                                             check = true;
@@ -178,16 +273,18 @@ public class BeaconService extends Service {
                                     if(classData.getCalEnd().before(cal)) return;
                                     Log.d(TAG, "4");
 
-                                    calInTime = Calendar.getInstance();
+                                    if(calInTime == null)
+                                        calInTime = Calendar.getInstance();
+                                    scanBeacon = beacon;
+                                    scanClass = classData;
                                     new InsertAtdDB(mHandler).execute(id, Utils.calToStr(calInTime), classData.getClassName());
 
-                                    Intent intent = new Intent(BROADCAST_BEACON);
-                                    intent.putExtra(INTENT_CLASS_NAME, classData.getClassName());
-                                    intent.putExtra(INTENT_CLASS_NUMBER, classData.getClassNumber());
-                                    intent.putExtra(INTENT_CLASS_START, classData.getCalStart());
-                                    intent.putExtra(INTENT_CLASS_END, classData.getCalEnd());
+                                    Intent intent = new Intent(BROADCAST_BEACON_IN);
+                                    intent.putExtra(INTENT_CLASS, classData);
                                     sendBroadcast(intent);
-                                    stopScan();
+
+
+
 
                                 } else {
                                     return;
@@ -199,8 +296,18 @@ public class BeaconService extends Service {
                     }
 
                 }
-                // 퇴실 체크
+                // 퇴실
                 else {
+                    boolean check = false;
+                    for(int i = 0 ; i < list.size(); i++){
+                        Beacon beacon = list.get(i);
+                        if(beacon.equals(scanBeacon)) check = true;
+                    }
+                    // 비콘이 잡히면 타임아웃을 0으로 초기화
+                    if(check){
+                        mTimeout = 0;
+                        Log.d(TAG, "강의실 안");
+                    }
 
                 }
 

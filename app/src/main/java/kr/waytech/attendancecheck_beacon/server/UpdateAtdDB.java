@@ -27,7 +27,10 @@ public class UpdateAtdDB extends AsyncTask<String, Integer, String> {
 
     private boolean isError;
 
-
+    /**
+     * 아이디 / 들어온시간 / 나간시간 / 강의이름
+     * @param mHandler
+     */
     public UpdateAtdDB(Handler mHandler) {
         this.mHandler = mHandler;
         isError = false;

@@ -3,9 +3,10 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="현재 강의 목록 - 선택시 수정"
+        android:text="현재 강의 목록"
         android:textSize="20sp"/>
 
     <ListView

@@ -26,6 +26,8 @@
         <activity android:name=".activity.SettingActivity"/>
         <activity android:name=".activity.ClassSetActivity"/>
         <activity android:name=".activity.ClassListActivity"/>
+        <activity android:name=".activity.AttendCheckActivity"
+            android:screenOrientation="landscape"/>
 
 
         <service android:name=".service.BeaconService"/>

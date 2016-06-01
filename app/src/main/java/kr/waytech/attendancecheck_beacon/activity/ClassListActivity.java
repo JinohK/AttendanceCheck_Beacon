@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class ClassListActivity extends AppCompatActivity {
     private ClassListAdapter classListAdapter;
     private SharedPreferences pref;
     private ProgressDialog progressDialog;
+    private TextView tvTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class ClassListActivity extends AppCompatActivity {
 
     private void findById(){
         lvClass = (ListView) findViewById(R.id.lvClass);
+        tvTitle = (TextView) findViewById(R.id.tvTitle);
     }
 
     private void init(){
@@ -50,13 +53,28 @@ public class ClassListActivity extends AppCompatActivity {
         lvClass.setAdapter(classListAdapter);
         pref = getSharedPreferences(getPackageName(), 0);
 
+        final String type = getIntent().getStringExtra(EduActivity.INTENT_TYPE);
+
+        if(type == null)
+            tvTitle.setText(tvTitle.getText() + " - 과목 선택시 수정");
+        else
+            tvTitle.setText(tvTitle.getText() + " - 과목 선택시 출결확인");
+
         lvClass.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 ClassData data = classListAdapter.getItem(i);
-                Intent intent = new Intent(ClassListActivity.this, ClassSetActivity.class);
-                intent.putExtra(INTENT_CLASS, data);
-                startActivityForResult(intent, RESULT_CODE);
+                // 강의목록을 통해 들어왔을시
+                if (type == null) {
+                    Intent intent = new Intent(ClassListActivity.this, ClassSetActivity.class);
+                    intent.putExtra(INTENT_CLASS, data);
+                    startActivityForResult(intent, RESULT_CODE);
+                // 출결로 들어왔을시
+                } else {
+                    Intent intent = new Intent(ClassListActivity.this, AttendCheckActivity.class);
+                    intent.putExtra(INTENT_CLASS, data);
+                    startActivity(intent);
+                }
             }
         });
 

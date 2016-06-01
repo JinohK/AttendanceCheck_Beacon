@@ -23,6 +23,7 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import kr.waytech.attendancecheck_beacon.server.UpdateClassDB;
  */
 public class ClassSetActivity extends AppCompatActivity {
 
+    private static final String TAG = "ClassSetActivity";
     private EditText etClassName;
     private EditText etClassNumber;
     private Button btnStartTime;
@@ -58,7 +60,7 @@ public class ClassSetActivity extends AppCompatActivity {
     private BeaconManager beaconManager;
     private Region mRegion;
 
-    private String strStartTime="", strEndTime="";
+    private String strStartTime = "", strEndTime = "";
 
     private boolean isUpdate = false;
     private ProgressDialog progressDialog;
@@ -94,16 +96,16 @@ public class ClassSetActivity extends AppCompatActivity {
         // 강의 목록을 통해 수정으로 들어왔을때 선택한 강의 데이터를 셋팅
         Intent intent = getIntent();
         ClassData data = (ClassData) intent.getSerializableExtra(ClassListActivity.INTENT_CLASS);
-        if(data != null){
+        if (data != null) {
             etClassName.setText(data.getClassName());
             etClassNumber.setText(data.getClassNumber());
             isUpdate = true;
-            strStartTime = data.getClassStart().substring(0, data.getClassStart().length()-3);
-            strEndTime = data.getClassEnd().substring(0, data.getClassEnd().length()-3);
+            strStartTime = data.getClassStart().substring(0, data.getClassStart().length() - 3);
+            strEndTime = data.getClassEnd().substring(0, data.getClassEnd().length() - 3);
             tvStartTime.setText(strStartTime);
             tvEndTime.setText(strEndTime);
-            for(int i = 0; i < data.getClassDayWeek().length(); i++){
-                switch(data.getClassDayWeek().charAt(i)){
+            for (int i = 0; i < data.getClassDayWeek().length(); i++) {
+                switch (data.getClassDayWeek().charAt(i)) {
                     case '월':
                         cbMonth.setChecked(true);
                         break;
@@ -170,7 +172,7 @@ public class ClassSetActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 beaconListAdapter.setSelectPos(i);
-                lvBeacon.getChildAt(0).setBackgroundColor(Color.argb(0,0,0,0));
+                lvBeacon.getChildAt(0).setBackgroundColor(Color.argb(0, 0, 0, 0));
             }
         });
 
@@ -206,35 +208,34 @@ public class ClassSetActivity extends AppCompatActivity {
         btnReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isAllWirte()) {
+                if (!isAllWirte()) {
                     Toast.makeText(ClassSetActivity.this, "모든칸을 입력해주세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 SharedPreferences pref;
                 pref = getSharedPreferences(getPackageName(), 0);
 
-                String week="";
-                if(cbMonth.isChecked()) week+="월";
-                if(cbTuesday.isChecked()) week+="화";
-                if(cbWednesday.isChecked()) week+="수";
-                if(cbThursday.isChecked()) week+="목";
-                if(cbFriday.isChecked()) week+="금";
+                String week = "";
+                if (cbMonth.isChecked()) week += "월";
+                if (cbTuesday.isChecked()) week += "화";
+                if (cbWednesday.isChecked()) week += "수";
+                if (cbThursday.isChecked()) week += "목";
+                if (cbFriday.isChecked()) week += "금";
 
                 BeaconListData listData = beaconListAdapter.getItem(beaconListAdapter.getSelectPos());
                 // 아이디 / 강의명 / 강의실 / 강의요일 / 강의시작시간 / 강의종료시간 / uuid / major/ minor
 
                 progressDialog = new ProgressDialog(ClassSetActivity.this);
                 progressDialog.show();
-                if(isUpdate){
+                if (isUpdate) {
                     new UpdateClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""), etClassName.getText().toString(),
                             etClassNumber.getText().toString(), week, strStartTime + ":00", strEndTime + ":00",
                             listData.getUuid(), listData.getMajor() + "", listData.getMinor() + "");
-                }else {
+                } else {
                     new InsertClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""), etClassName.getText().toString(),
                             etClassNumber.getText().toString(), week, strStartTime + ":00", strEndTime + ":00",
                             listData.getUuid(), listData.getMajor() + "", listData.getMinor() + "");
                 }
-
 
 
             }
@@ -248,7 +249,11 @@ public class ClassSetActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int i, int i1) {
                         strStartTime = i + ":" + i1;
-                        tvStartTime.setText(strStartTime);
+                        Calendar cal = Calendar.getInstance();
+                        cal.set(Calendar.HOUR_OF_DAY, i);
+                        cal.set(Calendar.MINUTE, i1);
+                        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+                        tvStartTime.setText(formatter.format(cal.getTime()));
                     }
                 }, Calendar.getInstance().get(Calendar.HOUR_OF_DAY), Calendar.getInstance().get(Calendar.MINUTE), false);
                 dialog.show();
@@ -262,7 +267,11 @@ public class ClassSetActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int i, int i1) {
                         strEndTime = i + ":" + i1;
-                        tvEndTime.setText(strEndTime);
+                        Calendar cal = Calendar.getInstance();
+                        cal.set(Calendar.HOUR_OF_DAY, i);
+                        cal.set(Calendar.MINUTE, i1);
+                        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+                        tvEndTime.setText(formatter.format(cal.getTime()));
                     }
                 }, Calendar.getInstance().get(Calendar.HOUR_OF_DAY), Calendar.getInstance().get(Calendar.MINUTE), false);
                 dialog.show();
@@ -272,15 +281,16 @@ public class ClassSetActivity extends AppCompatActivity {
 
     /**
      * 데이터 모두 입력했는지 확인
+     *
      * @return boolean
      */
-    private boolean isAllWirte(){
-        if(etClassNumber.length() == 0) return false;
-        if(etClassName.length() == 0) return false;
-        if(!cbMonth.isChecked() && !cbTuesday.isChecked() && !cbWednesday.isChecked() &&
+    private boolean isAllWirte() {
+        if (etClassNumber.length() == 0) return false;
+        if (etClassName.length() == 0) return false;
+        if (!cbMonth.isChecked() && !cbTuesday.isChecked() && !cbWednesday.isChecked() &&
                 !cbThursday.isChecked() && !cbFriday.isChecked()) return false;
-        if(beaconListAdapter.getSelectPos() == -1) return false;
-        if(strStartTime.length() == 0 || strEndTime.length() == 0) return false;
+        if (beaconListAdapter.getSelectPos() == -1) return false;
+        if (strStartTime.length() == 0 || strEndTime.length() == 0) return false;
 
         return true;
     }
@@ -291,14 +301,14 @@ public class ClassSetActivity extends AppCompatActivity {
         beaconManager.stopRanging(mRegion);
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
 
-            if(progressDialog.isShowing())
+            if (progressDialog.isShowing())
                 progressDialog.dismiss();
 
-            switch(msg.what){
+            switch (msg.what) {
                 case InsertClassDB.HANDLE_INSERT_OK:
                     Toast.makeText(ClassSetActivity.this, "등록 완료", Toast.LENGTH_SHORT).show();
                     finish();

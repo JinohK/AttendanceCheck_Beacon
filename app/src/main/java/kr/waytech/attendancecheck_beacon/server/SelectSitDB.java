@@ -17,21 +17,23 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import kr.waytech.attendancecheck_beacon.other.AttendListData;
+
 /**
- * Created by 진오 on 16. 5. 20..
- * DB Class 리스트 가져옴
+ * Created by 진오 on 16. 6. 02..
+ * DB -> 수업듣는 학생리스트
  */
-public class SelectClassDB extends AsyncTask<String, Integer, String> {
-    public static final String strUrl = "http://waytech.kr/AtdCheck/selectClass.php";
-    public static final int HANDLE_SELECT_FAIL = 23425;
-    public static final int HANDLE_SELECT_OK = 65478;
+public class SelectSitDB extends AsyncTask<String, Integer, String> {
+    public static final String strUrl = "http://waytech.kr/AtdCheck/selectSit.php";
+    public static final int HANDLE_SELECT_FAIL = 23423;
+    public static final int HANDLE_SELECT_OK = 1323;
 
-    private ArrayList<ClassData> data = new ArrayList<>();
+    private ArrayList<AttendListData> data = new ArrayList<>();
     private Handler mHandler;
-    private final String TAG = "SelectClassDB";
+    private final String TAG = "SelectSitDB";
 
 
-    public SelectClassDB(Handler mHandler) {
+    public SelectSitDB(Handler mHandler) {
         this.mHandler = mHandler;
     }
 
@@ -61,7 +63,7 @@ public class SelectClassDB extends AsyncTask<String, Integer, String> {
                     OutputStream outputStream = conn.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(
                             new OutputStreamWriter(outputStream, "UTF-8"));
-                    writer.write("id=" + v[0]);
+                    writer.write("class=" + v[0]);
                     writer.flush();
                     writer.close();
 
@@ -93,36 +95,18 @@ public class SelectClassDB extends AsyncTask<String, Integer, String> {
 
 
     protected void onPostExecute(String str) {
-        String uuid;
-        int major;
-        int minor;
-        String className;
-        String classEdu;
-        String classNumber;
-        String classDayWeek;
-        String classStart;
-        String classEnd;
-        String classEduName;
+        String name;
+        String id;
 
 
         try {
             JSONArray root = new JSONArray(str);
 
-            for (int i = 0; i < root.length(); i++) {
+            for(int i = 0 ; i < root.length(); i++) {
                 JSONObject jo = root.getJSONObject(i);
-                className = jo.getString("CLASS_NAME");
-                classEdu = jo.getString("CLASS_EDU");
-                classNumber= jo.getString("CLASS_NUMBER");
-                classDayWeek = jo.getString("CLASS_DAYWEEK");
-                classStart = jo.getString("CLASS_START");
-                classEnd = jo.getString("CLASS_END");
-                uuid = jo.getString("CLASS_UUID");
-                major = jo.getInt("CLASS_MAJOR");
-                minor = jo.getInt("CLASS_MINOR");
-                classEduName = jo.getString("USER_NAME");
-
-                data.add(new ClassData(uuid, major, minor,
-                        className, classEdu, classNumber, classDayWeek, classStart, classEnd, classEduName));
+                name = jo.getString("USER_NAME");
+                id = jo.getString("USER_ID");
+                data.add(new AttendListData(id, name, android.R.drawable.presence_offline));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();
 

@@ -9,6 +9,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences pref;
     private SharedPreferences.Editor edit;
     private ProgressDialog progressDialog;
+    private InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,8 @@ public class LoginActivity extends AppCompatActivity {
         pref = getSharedPreferences(getPackageName(), 0);
         edit = pref.edit();
 
+        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
         ivSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,6 +109,10 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void linearClick(View v) {
+        imm.hideSoftInputFromWindow(etId.getWindowToken(), 0);
     }
 
     private Handler mHandler = new Handler() {

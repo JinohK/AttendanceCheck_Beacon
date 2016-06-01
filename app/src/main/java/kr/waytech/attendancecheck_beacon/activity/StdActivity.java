@@ -11,10 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 import kr.waytech.attendancecheck_beacon.R;
 import kr.waytech.attendancecheck_beacon.other.Utils;
+import kr.waytech.attendancecheck_beacon.server.ClassData;
 import kr.waytech.attendancecheck_beacon.service.BeaconService;
 
 /**
@@ -34,7 +35,8 @@ public class StdActivity extends AppCompatActivity {
 
         // 리시버 등록
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BeaconService.BROADCAST_BEACON);
+        intentFilter.addAction(BeaconService.BROADCAST_BEACON_IN);
+        intentFilter.addAction(BeaconService.BROADCAST_BEACON_OUT);
         registerReceiver(receiver, intentFilter);
 
         findById();
@@ -74,22 +76,26 @@ public class StdActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
+    }
 
     // 비컨 리시버
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(BeaconService.BROADCAST_BEACON)){
-                String className = intent.getStringExtra(BeaconService.INTENT_CLASS_NAME);
-                String classNumber = intent.getStringExtra(BeaconService.INTENT_CLASS_NUMBER);
-                Calendar calStart = (Calendar) intent.getSerializableExtra(BeaconService.INTENT_CLASS_START);
-                Calendar calEnd = (Calendar) intent.getSerializableExtra(BeaconService.INTENT_CLASS_END);
-
-                String strStart = calStart.get(Calendar.HOUR_OF_DAY) + ":" + calStart.get(Calendar.MINUTE);
-                String strEnd = calEnd.get(Calendar.HOUR_OF_DAY) + ":" + calEnd.get(Calendar.MINUTE);
-
-                String str = "현재 강의실 : " +className + "(" + classNumber + ")" + " " + strStart + "~" + strEnd;
+            if(intent.getAction().equals(BeaconService.BROADCAST_BEACON_IN)){
+                ClassData data = (ClassData) intent.getSerializableExtra(BeaconService.INTENT_CLASS);
+                String str = "강  의  실 : " + data.getClassName() + "(" + data.getClassNumber() + ")" + "\n";
+                SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+                str += "강의시간 : " + formatter.format(data.getCalStart().getTime());
+                str += "~" + formatter.format(data.getCalEnd().getTime()) + "\n";
+                str += "담당교수 : " + data.getClassEduName();
                 tvClass.setText(str);
+            }else if(intent.getAction().equals(BeaconService.BROADCAST_BEACON_OUT)){
+                tvClass.setText("강  의  실 : ");
             }
         }
     };

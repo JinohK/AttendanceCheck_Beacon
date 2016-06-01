@@ -18,20 +18,20 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Created by 진오 on 16. 5. 20..
- * DB Class 리스트 가져옴
+ * Created by 진오 on 16. 6. 02..
+ * DB -> 출결확인
  */
-public class SelectClassDB extends AsyncTask<String, Integer, String> {
-    public static final String strUrl = "http://waytech.kr/AtdCheck/selectClass.php";
-    public static final int HANDLE_SELECT_FAIL = 23425;
-    public static final int HANDLE_SELECT_OK = 65478;
+public class SelectAttendDB extends AsyncTask<String, Integer, String> {
+    public static final String strUrl = "http://waytech.kr/AtdCheck/selectAttend.php";
+    public static final int HANDLE_SELECT_FAIL = 76585;
+    public static final int HANDLE_SELECT_OK = 64572;
 
-    private ArrayList<ClassData> data = new ArrayList<>();
+    private ArrayList<AttendData> data = new ArrayList<>();
     private Handler mHandler;
-    private final String TAG = "SelectClassDB";
+    private final String TAG = "SelectAttendDB";
 
 
-    public SelectClassDB(Handler mHandler) {
+    public SelectAttendDB(Handler mHandler) {
         this.mHandler = mHandler;
     }
 
@@ -61,7 +61,8 @@ public class SelectClassDB extends AsyncTask<String, Integer, String> {
                     OutputStream outputStream = conn.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(
                             new OutputStreamWriter(outputStream, "UTF-8"));
-                    writer.write("id=" + v[0]);
+                    writer.write("class=" + v[0]);
+                    writer.write("&time=" + v[1]);
                     writer.flush();
                     writer.close();
 
@@ -93,36 +94,23 @@ public class SelectClassDB extends AsyncTask<String, Integer, String> {
 
 
     protected void onPostExecute(String str) {
-        String uuid;
-        int major;
-        int minor;
         String className;
-        String classEdu;
-        String classNumber;
-        String classDayWeek;
-        String classStart;
-        String classEnd;
-        String classEduName;
+        String userId;
+        String inTime;
+        String outTime;
+
 
 
         try {
             JSONArray root = new JSONArray(str);
 
-            for (int i = 0; i < root.length(); i++) {
+            for(int i = 0 ; i < root.length(); i++) {
                 JSONObject jo = root.getJSONObject(i);
                 className = jo.getString("CLASS_NAME");
-                classEdu = jo.getString("CLASS_EDU");
-                classNumber= jo.getString("CLASS_NUMBER");
-                classDayWeek = jo.getString("CLASS_DAYWEEK");
-                classStart = jo.getString("CLASS_START");
-                classEnd = jo.getString("CLASS_END");
-                uuid = jo.getString("CLASS_UUID");
-                major = jo.getInt("CLASS_MAJOR");
-                minor = jo.getInt("CLASS_MINOR");
-                classEduName = jo.getString("USER_NAME");
-
-                data.add(new ClassData(uuid, major, minor,
-                        className, classEdu, classNumber, classDayWeek, classStart, classEnd, classEduName));
+                userId = jo.getString("USER_ID");
+                inTime = jo.getString("ATTEND_IN");
+                outTime = jo.getString("ATTEND_OUT");
+                data.add(new AttendData(className, userId, inTime, outTime));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();
 
