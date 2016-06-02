@@ -25,8 +25,10 @@ import kr.waytech.attendancecheck_beacon.service.BeaconService;
 public class StdActivity extends AppCompatActivity {
 
 
+    public static final String INTENT_STD = "INTENTSTD";
     private TextView tvClass;
     private Button btnSetting;
+    private Button btnAttend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class StdActivity extends AppCompatActivity {
     private void findById(){
         tvClass = (TextView) findViewById(R.id.tvClass);
         btnSetting = (Button) findViewById(R.id.btnSetting);
+        btnAttend = (Button) findViewById(R.id.btnAttend);
     }
 
     private void init(){
@@ -72,6 +75,15 @@ public class StdActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(StdActivity.this, SettingActivity.class));
+            }
+        });
+
+        btnAttend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(StdActivity.this, AttendCheckActivity.class);
+                intent.putExtra(INTENT_STD, INTENT_STD);
+                startActivity(intent);
             }
         });
     }

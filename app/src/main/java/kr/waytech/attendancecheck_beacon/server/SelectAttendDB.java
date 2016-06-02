@@ -63,6 +63,8 @@ public class SelectAttendDB extends AsyncTask<String, Integer, String> {
                             new OutputStreamWriter(outputStream, "UTF-8"));
                     writer.write("class=" + v[0]);
                     writer.write("&time=" + v[1]);
+                    if(v.length>2)
+                        writer.write("&id=" + v[2]);
                     writer.flush();
                     writer.close();
 
@@ -101,6 +103,8 @@ public class SelectAttendDB extends AsyncTask<String, Integer, String> {
 
 
 
+
+
         try {
             JSONArray root = new JSONArray(str);
 
@@ -110,6 +114,7 @@ public class SelectAttendDB extends AsyncTask<String, Integer, String> {
                 userId = jo.getString("USER_ID");
                 inTime = jo.getString("ATTEND_IN");
                 outTime = jo.getString("ATTEND_OUT");
+
                 data.add(new AttendData(className, userId, inTime, outTime));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();

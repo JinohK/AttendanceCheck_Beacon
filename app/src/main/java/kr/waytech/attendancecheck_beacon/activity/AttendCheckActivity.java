@@ -48,6 +48,8 @@ public class AttendCheckActivity extends AppCompatActivity {
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    private boolean isStd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +100,10 @@ public class AttendCheckActivity extends AppCompatActivity {
                 tvDate.setText(dateFormat.format(date));
                 dialog = new ProgressDialog(AttendCheckActivity.this);
                 dialog.show();
-                new SelectAttendDB(mHandler).execute(classData.getClassName(), dateFormat.format(date));
+                if (isStd)
+                    ;
+                else
+                    new SelectAttendDB(mHandler).execute(classData.getClassName(), dateFormat.format(date));
             }
 
             @Override
@@ -144,7 +149,16 @@ public class AttendCheckActivity extends AppCompatActivity {
 
             }
         });
-        new SelectSitDB(mHandler).execute(classData.getClassName());
+        if (getIntent().getStringExtra(StdActivity.INTENT_STD) != null) {
+            isStd = true;
+            Log.d(TAG, "학생");
+        } else {
+            Log.d(TAG, "교직원");
+            isStd = false;
+            new SelectSitDB(mHandler).execute(classData.getClassName());
+        }
+
+
     }
 
     private Handler mHandler = new Handler() {
@@ -162,53 +176,57 @@ public class AttendCheckActivity extends AppCompatActivity {
 
                 case SelectAttendDB.HANDLE_SELECT_OK:
 
-                    ArrayList<AttendData> ary = (ArrayList<AttendData>) msg.obj;
-                    adapter.reset();
-                    ArrayList<AttendListData> datas = adapter.getData();
-                    for (int i = 0; i < ary.size(); i++) {
+                    if (isStd) {
 
-                        for (int j = 0; j < datas.size(); j++) {
-                            if (ary.get(i).getUserId().equals(datas.get(j).getId())) {
-                                Calendar calIn = ary.get(i).getCalIn();
-                                Calendar calOut = ary.get(i).getCalOut();
-                                Calendar calStart = classData.getCalStart();
-                                Calendar calEnd = classData.getCalEnd();
-                                calStart.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
-                                calStart.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
-                                calStart.set(Calendar.DATE, calIn.get(Calendar.DATE));
-                                calEnd.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
-                                calEnd.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
-                                calEnd.set(Calendar.DATE, calIn.get(Calendar.DATE));
+                    } else {
+                        ArrayList<AttendData> ary = (ArrayList<AttendData>) msg.obj;
+                        adapter.reset();
+                        ArrayList<AttendListData> datas = adapter.getData();
+                        for (int i = 0; i < ary.size(); i++) {
+
+                            for (int j = 0; j < datas.size(); j++) {
+                                if (ary.get(i).getUserId().equals(datas.get(j).getId())) {
+                                    Calendar calIn = ary.get(i).getCalIn();
+                                    Calendar calOut = ary.get(i).getCalOut();
+                                    Calendar calStart = classData.getCalStart();
+                                    Calendar calEnd = classData.getCalEnd();
+                                    calStart.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
+                                    calStart.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
+                                    calStart.set(Calendar.DATE, calIn.get(Calendar.DATE));
+                                    calEnd.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
+                                    calEnd.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
+                                    calEnd.set(Calendar.DATE, calIn.get(Calendar.DATE));
 
 //                                Log.d(TAG, calIn.get(Calendar.HOUR_OF_DAY) + ":" + calIn.get(Calendar.MINUTE) + "," +
 //                                        calStart.get(Calendar.HOUR_OF_DAY) + ":" + calStart.get(Calendar.MINUTE));
 //                                Log.d(TAG, calOut.get(Calendar.HOUR_OF_DAY) + ":" + calOut.get(Calendar.MINUTE) + "," +
 //                                        calEnd.get(Calendar.HOUR_OF_DAY) + ":" + calEnd.get(Calendar.MINUTE));
 //                                Log.d(TAG, calIn.before(calStart) + "" + calOut.after(calEnd));
-                                datas.get(j).setCalIn(calIn);
-                                datas.get(j).setCalOut(calOut);
-                                // 퇴실시간없을시
-                                if (Integer.parseInt(ary.get(i).getOutTime().substring(0, 2)) == 0) {
-                                    datas.get(j).setImage(android.R.drawable.presence_invisible);
-                                    Log.d(TAG, ary.get(i).getOutTime().substring(0, 1));
-                                }
-                                // 정상
-                                else if (calIn.before(calStart) && calOut.after(calEnd)) {
-                                    datas.get(j).setImage(android.R.drawable.presence_online);
-                                    Log.d(TAG, "ok");
-                                }
-                                // 지각, 출튀
-                                else {
-                                    datas.get(j).setImage(android.R.drawable.presence_invisible);
-                                    Log.d(TAG, "oter");
-                                }
-                                break;
+                                    datas.get(j).setCalIn(calIn);
+                                    datas.get(j).setCalOut(calOut);
+                                    // 퇴실시간없을시
+                                    if (Integer.parseInt(ary.get(i).getOutTime().substring(0, 2)) == 0) {
+                                        datas.get(j).setImage(android.R.drawable.presence_invisible);
+                                        Log.d(TAG, ary.get(i).getOutTime().substring(0, 1));
+                                    }
+                                    // 정상
+                                    else if (calIn.before(calStart) && calOut.after(calEnd)) {
+                                        datas.get(j).setImage(android.R.drawable.presence_online);
+                                        Log.d(TAG, "ok");
+                                    }
+                                    // 지각, 출튀
+                                    else {
+                                        datas.get(j).setImage(android.R.drawable.presence_invisible);
+                                        Log.d(TAG, "oter");
+                                    }
+                                    break;
 
+                                }
                             }
                         }
-                    }
 
-                    adapter.setData(datas);
+                        adapter.setData(datas);
+                    }
                     if (dialog.isShowing()) dialog.dismiss();
                     break;
 

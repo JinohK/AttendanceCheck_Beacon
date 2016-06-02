@@ -42,9 +42,13 @@ public class ClassData implements Serializable {
         this.classStart = classStart;
         this.classEnd = classEnd;
         this.classEduName = classEduName;
-
     }
 
+    public ClassData(String className, String classStart, String classEnd) {
+        this.className = className;
+        this.classStart = classStart;
+        this.classEnd = classEnd;
+    }
 
     public String getClassEduName() {
         return classEduName;

@@ -16,7 +16,7 @@ import kr.waytech.attendancecheck_beacon.other.Utils;
  */
 public class EduActivity extends AppCompatActivity {
 
-    public static final String INTENT_TYPE = "type";
+    public static final String INTENT_EDU = "INTENTEDU";
 
     private Button btnSetting;
     private Button btnReg;
@@ -65,7 +65,7 @@ public class EduActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EduActivity.this, ClassListActivity.class);
-                intent.putExtra(INTENT_TYPE, "attend");
+                intent.putExtra(ClassListActivity.INTENT_CLASS, INTENT_EDU);
                 startActivity(intent);
             }
         });

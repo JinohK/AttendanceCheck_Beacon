@@ -64,6 +64,8 @@ public class SelectSitDB extends AsyncTask<String, Integer, String> {
                     BufferedWriter writer = new BufferedWriter(
                             new OutputStreamWriter(outputStream, "UTF-8"));
                     writer.write("class=" + v[0]);
+                    if(v.length>1)
+                        writer.write("&id=" + v[1]);
                     writer.flush();
                     writer.close();
 
@@ -98,6 +100,9 @@ public class SelectSitDB extends AsyncTask<String, Integer, String> {
         String name;
         String id;
 
+        String className;
+        String classStart;
+        String classEnd;
 
         try {
             JSONArray root = new JSONArray(str);
@@ -106,7 +111,10 @@ public class SelectSitDB extends AsyncTask<String, Integer, String> {
                 JSONObject jo = root.getJSONObject(i);
                 name = jo.getString("USER_NAME");
                 id = jo.getString("USER_ID");
-                data.add(new AttendListData(id, name, android.R.drawable.presence_offline));
+                className = jo.getString("CLASS_NAME");
+                classStart = jo.getString("CLASS_START");
+                classEnd = jo.getString("CLASS_END");
+                data.add(new AttendListData(id, name, android.R.drawable.presence_offline, new ClassData(className, classStart, classEnd)));
             }
             mHandler.obtainMessage(HANDLE_SELECT_OK, data).sendToTarget();
 

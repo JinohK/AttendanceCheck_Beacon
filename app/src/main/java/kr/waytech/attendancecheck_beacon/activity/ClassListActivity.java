@@ -16,16 +16,19 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import kr.waytech.attendancecheck_beacon.R;
+import kr.waytech.attendancecheck_beacon.other.AttendListData;
 import kr.waytech.attendancecheck_beacon.other.ClassListAdapter;
 import kr.waytech.attendancecheck_beacon.other.Utils;
 import kr.waytech.attendancecheck_beacon.server.ClassData;
 import kr.waytech.attendancecheck_beacon.server.SelectClassDB;
+import kr.waytech.attendancecheck_beacon.server.SelectSitDB;
 
 /**
  * Created by Kim-Jinoh on 16. 5. 31..
  */
 public class ClassListActivity extends AppCompatActivity {
 
+    private static final String TAG = "ClassListActivity";
     public static String INTENT_CLASS = "INTENTCLASS";
     public static int RESULT_CODE = 34;
 
@@ -49,15 +52,16 @@ public class ClassListActivity extends AppCompatActivity {
     }
 
     private void init(){
-        classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_DELETE);
-        lvClass.setAdapter(classListAdapter);
+
         pref = getSharedPreferences(getPackageName(), 0);
 
-        final String type = getIntent().getStringExtra(EduActivity.INTENT_TYPE);
+        final String type = getIntent().getStringExtra(INTENT_CLASS);
 
+        // 강의목록
         if(type == null)
             tvTitle.setText(tvTitle.getText() + " - 과목 선택시 수정");
-        else
+        // 출결확인
+        else if(type.equals(EduActivity.INTENT_EDU))
             tvTitle.setText(tvTitle.getText() + " - 과목 선택시 출결확인");
 
         lvClass.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,18 +73,37 @@ public class ClassListActivity extends AppCompatActivity {
                     Intent intent = new Intent(ClassListActivity.this, ClassSetActivity.class);
                     intent.putExtra(INTENT_CLASS, data);
                     startActivityForResult(intent, RESULT_CODE);
-                // 출결로 들어왔을시
-                } else {
+                // 출결 - 교수
+                } else if (type.equals(EduActivity.INTENT_EDU)) {
                     Intent intent = new Intent(ClassListActivity.this, AttendCheckActivity.class);
                     intent.putExtra(INTENT_CLASS, data);
                     startActivity(intent);
+                // 출결 - 학생
+                } else if (type.equals(StdActivity.INTENT_STD)) {
+
                 }
             }
         });
 
         progressDialog = new ProgressDialog(ClassListActivity.this);
         progressDialog.show();
-        new SelectClassDB(mHandler).execute(pref.getString(Utils.PREF_ID,""));
+        // 강의목록을 통해왔을때
+        if(type == null){
+            classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_DELETE);
+            new SelectClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""));
+        }
+        // 출결확인 - 교직원
+        else if(type.equals(EduActivity.INTENT_EDU)) {
+            classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_NORMAL);
+            new SelectClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""));
+        }
+        // 출결확인 - 학생
+        else if(type.equals(StdActivity.INTENT_STD)){
+            classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_NORMAL);
+            new SelectSitDB(mHandler).execute(null, pref.getString(Utils.PREF_ID, ""));
+        }
+
+        lvClass.setAdapter(classListAdapter);
     }
     private Handler mHandler = new Handler(){
         @Override
@@ -93,7 +116,17 @@ public class ClassListActivity extends AppCompatActivity {
                     ArrayList<ClassData> data = (ArrayList<ClassData>) msg.obj;
                     classListAdapter.setData(data);
                     break;
+                case SelectSitDB.HANDLE_SELECT_OK:
+                    ArrayList<AttendListData> ary = (ArrayList<AttendListData>) msg.obj;
+                    ArrayList<ClassData> classDatas = new ArrayList<>();
 
+                    for(AttendListData d : ary){
+                        classDatas.add(new ClassData(d.getClassData().getClassName(), d.getClassData().getClassStart(), d.getClassData().getClassEnd()));
+                    }
+                    classListAdapter.setData(classDatas);
+                    break;
+
+                case SelectSitDB.HANDLE_SELECT_FAIL:
                 case SelectClassDB.HANDLE_SELECT_FAIL:
                     Toast.makeText(ClassListActivity.this, "error", Toast.LENGTH_SHORT).show();
                     break;
