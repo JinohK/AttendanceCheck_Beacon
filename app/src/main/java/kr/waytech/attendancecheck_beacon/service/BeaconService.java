@@ -255,7 +255,7 @@ public class BeaconService extends Service {
                                     // 현재 요일과 강의 요일 비교
                                     String strWeek = classData.getClassDayWeek();
                                     boolean check = false;
-                                    for(int z = 0; z < strWeek.length()-1; z++){
+                                    for(int z = 0; z < strWeek.length(); z++){
                                         char str = strWeek.charAt(z);
                                         if(str == dayWeek){
                                             check = true;
