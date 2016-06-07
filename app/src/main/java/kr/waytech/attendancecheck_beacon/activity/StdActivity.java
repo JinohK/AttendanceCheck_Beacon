@@ -4,16 +4,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 
 import kr.waytech.attendancecheck_beacon.R;
+import kr.waytech.attendancecheck_beacon.other.CheckPermission;
+import kr.waytech.attendancecheck_beacon.other.MyBluetoothManager;
 import kr.waytech.attendancecheck_beacon.other.Utils;
 import kr.waytech.attendancecheck_beacon.server.ClassData;
 import kr.waytech.attendancecheck_beacon.service.BeaconService;
@@ -26,6 +31,7 @@ public class StdActivity extends AppCompatActivity {
 
 
     public static final String INTENT_STD = "INTENTSTD";
+    private static final String TAG = "StdActivity";
     private TextView tvClass;
     private ImageView btnSetting;
     private ImageView btnAttend;
@@ -45,24 +51,25 @@ public class StdActivity extends AppCompatActivity {
         findById();
         init();
 
-        // 블루투스 마시멜로우 권한 대응
-//        new TedPermission(this)
-//                .setPermissionListener(new PermissionListener() {
-//                    @Override
-//                    public void onPermissionGranted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPermissionDenied(ArrayList<String> arrayList) {
-//
-//                    }
-//                })
-//                .setDeniedMessage("블루투스 사용을 위해 권한이 필요합니다\n\n[앱설정] > [권한]에 가셔서 권한 승인을 부탁드립니다")
-//                .setPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-//                .check();
+
 
         startService(new Intent(StdActivity.this, BeaconService.class));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode){
+            case CheckPermission.PERMISSIONS_REQUEST:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // 권한 허가
+                } else {
+                    // 권한 거부
+                    Toast.makeText(StdActivity.this, "블루투스 사용을 위해 권한이 필요합니다 \n\n[앱설정]->[권한]에서 권한승인을 해주세요", Toast.LENGTH_SHORT).show();
+                }
+                return;
+
+        }
     }
 
     private void findById(){
@@ -96,8 +103,22 @@ public class StdActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        // 마시멜로우 권한체크
+        if(!CheckPermission.checkSelfPermission(this)){
+            CheckPermission.requestPermission(this);
+            Log.d(TAG, "need permission");
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!MyBluetoothManager.isBtModule())
+            Toast.makeText(StdActivity.this, "블루투스를 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
+        else if(!MyBluetoothManager.isBtEnabled()){
+            MyBluetoothManager.RequestBtOn(this);
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -132,12 +153,6 @@ public class StdActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
 
 
 
