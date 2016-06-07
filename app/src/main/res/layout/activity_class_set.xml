@@ -6,19 +6,24 @@
     android:id="@+id/llMain"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background= "@drawable/menu_back">
 
     <EditText
         android:id="@+id/etClassName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="강의명" />
+        android:hint="강의명"
+        android:textColor="#000000"
+        android:textStyle="bold"/>
 
     <EditText
         android:id="@+id/etClassNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="강의실" />
+        android:hint="강의실"
+        android:textColor="#000000"
+        android:textStyle="bold"/>
 
 
     <LinearLayout
@@ -31,15 +36,22 @@
             android:id="@+id/btnStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="강의 시작 시간 설정" />
+            android:text="강의 시작 시간 설정"
+            android:padding="5dp"
+            android:layout_margin="10dp"
+            android:background="#FFFF88"
+            android:textColor="#000000" />
 
 
         <Button
             android:id="@+id/btnEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="강의 종료 시간 설정" />
+            android:padding="5dp"
+            android:layout_margin="10dp"
+            android:text="강의 종료 시간 설정"
+            android:textColor="#000000"
+            android:background="#FFFF88"/>
     </LinearLayout>
 
     <LinearLayout
@@ -51,24 +63,28 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="시작 시간:" />
+            android:text="시작 시간:"
+            android:textColor="#000000"/>
 
         <TextView
             android:id="@+id/tvStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00" />
+            android:text="00:00"
+            android:textColor="#000000"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="종료 시간:" />
+            android:text="종료 시간:"
+            android:textColor="#000000"/>
         <TextView
             android:id="@+id/tvEndTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00" />
+            android:text="00:00"
+            android:textColor="#000000"/>
     </LinearLayout>
 
     <LinearLayout
@@ -81,34 +97,40 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="강의요일 - "/>
+            android:text="강의요일 - "
+            android:textColor="#000000"/>
 
         <CheckBox
             android:id="@+id/cbMonDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="월" />
+            android:text="월"
+            android:textColor="#000000"
+            />
 
         <CheckBox
             android:id="@+id/cbTuesday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="화" />
+            android:text="화"
+            android:textColor="#000000"/>
 
         <CheckBox
             android:id="@+id/cbWednesday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="수" />
+            android:text="수"
+            android:textColor="#000000"/>
 
         <CheckBox
             android:id="@+id/cbThursday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="목" />
+            android:text="목"
+            android:textColor="#000000"/>
 
         <CheckBox
             android:id="@+id/cbFriday"
@@ -124,7 +146,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:listSelector="@color/colorPrimary">
+        android:listSelector="#4444FF"
+        android:textColor="#000000"
+        >
 
     </ListView>
 
@@ -139,14 +163,20 @@
             android:id="@+id/btnReg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="등록" />
+            android:text="등록"
+            android:textSize="20dp"
+            android:background="#BBFFFF"
+            android:textColor="#000000"/>
 
         <Button
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="취소" />
+            android:text="취소"
+            android:textSize="20dp"
+            android:background="#BBFFFF"
+            android:textColor="#000000"/>
     </LinearLayout>
 
 </LinearLayout>

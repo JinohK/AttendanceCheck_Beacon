@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:padding="20dp"
+    android:background="@drawable/background"
     >
 
     <LinearLayout
@@ -14,15 +15,18 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:text="아이디:"
-            android:gravity="right|center"/>
+            android:gravity="right|center"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            />
         <EditText
             android:id="@+id/etId"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="20dp"/>
 
     </LinearLayout>
 
@@ -34,8 +38,10 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:text="비밀번호:"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:gravity="right|center"/>
         <EditText
             android:id="@+id/etPassword"
@@ -55,9 +61,11 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:text="이름:"
-            android:gravity="right|center"/>
+            android:gravity="right|center"
+            android:textStyle="bold"
+            android:textSize="20dp"/>
         <EditText
             android:id="@+id/etName"
             android:layout_width="0dp"
@@ -83,13 +91,15 @@
                 android:id="@+id/rbStd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="학생"/>
+                android:text="학생"
+                android:textSize="20dp"/>
             <RadioButton
                 android:id="@+id/rbEdu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:text="교직원"/>
+                android:text="교직원"
+                android:textSize="20dp"/>
         </RadioGroup>
 
     </LinearLayout>
@@ -104,14 +114,20 @@
             android:id="@+id/btnSign"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="가입하기"/>
+            android:text="가입하기"
+            android:textColor="#ffffff"
+            android:background="#013b8b"
+            android:textSize="15dp"/>
 
         <Button
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:text="취소"/>
+            android:text="취소"
+            android:textColor="#ffffff"
+            android:background="#013b8b"
+            android:textSize="15dp"/>
 
 
     </LinearLayout>

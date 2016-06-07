@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 
 import kr.waytech.attendancecheck_beacon.R;
 import kr.waytech.attendancecheck_beacon.other.Utils;
@@ -16,12 +16,14 @@ import kr.waytech.attendancecheck_beacon.other.Utils;
  */
 public class EduActivity extends AppCompatActivity {
 
-    public static final String INTENT_EDU = "INTENTEDU";
+    public static final String INTENT_EDU_ATTEND = "INTENTEDU";
+    public static final String INTENT_EDU_NOTICE = "INTENTEDU_NOTI";
 
-    private Button btnSetting;
-    private Button btnReg;
-    private Button btnList;
-    private Button btnAttend;
+    private ImageView btnSetting;
+    private ImageView btnReg;
+    private ImageView btnList;
+    private ImageView btnAttend;
+    private ImageView btnNotice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +34,11 @@ public class EduActivity extends AppCompatActivity {
     }
 
     private void findById(){
-        btnSetting = (Button) findViewById(R.id.btnSetting);
-        btnReg = (Button) findViewById(R.id.btnClassReg);
-        btnList = (Button)findViewById(R.id.btnClassList);
-        btnAttend = (Button) findViewById(R.id.btnAttend);
+        btnSetting = (ImageView) findViewById(R.id.btnSetting);
+        btnReg = (ImageView) findViewById(R.id.btnClassReg);
+        btnList = (ImageView)findViewById(R.id.btnClassList);
+        btnAttend = (ImageView) findViewById(R.id.btnAttend);
+        btnNotice = (ImageView) findViewById(R.id.btnNotice);
     }
 
     private void init(){
@@ -65,7 +68,16 @@ public class EduActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EduActivity.this, ClassListActivity.class);
-                intent.putExtra(ClassListActivity.INTENT_CLASS, INTENT_EDU);
+                intent.putExtra(ClassListActivity.INTENT_CLASS, INTENT_EDU_ATTEND);
+                startActivity(intent);
+            }
+        });
+
+        btnNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(EduActivity.this, ClassListActivity.class);
+                intent.putExtra(ClassListActivity.INTENT_CLASS, INTENT_EDU_NOTICE);
                 startActivity(intent);
             }
         });

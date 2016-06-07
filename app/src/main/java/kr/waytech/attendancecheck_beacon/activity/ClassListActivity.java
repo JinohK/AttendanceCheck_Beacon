@@ -30,6 +30,7 @@ public class ClassListActivity extends AppCompatActivity {
 
     private static final String TAG = "ClassListActivity";
     public static String INTENT_CLASS = "INTENTCLASS";
+    public static String INTENT_ISEDU = "INTENT_ISEDU";
     public static int RESULT_CODE = 34;
 
     private ListView lvClass;
@@ -61,8 +62,10 @@ public class ClassListActivity extends AppCompatActivity {
         if(type == null)
             tvTitle.setText(tvTitle.getText() + " - 과목 선택시 수정");
         // 출결확인
-        else if(type.equals(EduActivity.INTENT_EDU))
+        else if(type.equals(EduActivity.INTENT_EDU_ATTEND))
             tvTitle.setText(tvTitle.getText() + " - 과목 선택시 출결확인");
+        else if(type.equals(EduActivity.INTENT_EDU_NOTICE))
+            tvTitle.setText(tvTitle.getText() + " - 과목 선택시 공지확인");
 
         lvClass.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -74,13 +77,22 @@ public class ClassListActivity extends AppCompatActivity {
                     intent.putExtra(INTENT_CLASS, data);
                     startActivityForResult(intent, RESULT_CODE);
                 // 출결 - 교수
-                } else if (type.equals(EduActivity.INTENT_EDU)) {
+                } else if (type.equals(EduActivity.INTENT_EDU_ATTEND)) {
                     Intent intent = new Intent(ClassListActivity.this, AttendCheckActivity.class);
                     intent.putExtra(INTENT_CLASS, data);
                     startActivity(intent);
-                // 출결 - 학생
+                // 공지 - 학생
                 } else if (type.equals(StdActivity.INTENT_STD)) {
-
+                    Intent intent = new Intent(ClassListActivity.this, NoticeActivity.class);
+                    intent.putExtra(NoticeActivity.INTENT_CLASS, data);
+                    startActivity(intent);
+                }
+                // 공지 - 교수
+                else if(type.equals(EduActivity.INTENT_EDU_NOTICE)){
+                    Intent intent = new Intent(ClassListActivity.this, NoticeActivity.class);
+                    intent.putExtra(NoticeActivity.INTENT_CLASS, data);
+                    intent.putExtra(INTENT_ISEDU, true);
+                    startActivity(intent);
                 }
             }
         });
@@ -92,15 +104,15 @@ public class ClassListActivity extends AppCompatActivity {
             classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_DELETE);
             new SelectClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""));
         }
-        // 출결확인 - 교직원
-        else if(type.equals(EduActivity.INTENT_EDU)) {
+        // 공지 및 출결 - 교직원
+        else if(type.equals(EduActivity.INTENT_EDU_ATTEND) || type.equals(EduActivity.INTENT_EDU_NOTICE)) {
             classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_NORMAL);
             new SelectClassDB(mHandler).execute(pref.getString(Utils.PREF_ID, ""));
         }
-        // 출결확인 - 학생
+        // 공지 - 학생
         else if(type.equals(StdActivity.INTENT_STD)){
             classListAdapter = new ClassListAdapter(this, ClassListAdapter.TYPE_NORMAL);
-            new SelectSitDB(mHandler).execute(null, pref.getString(Utils.PREF_ID, ""));
+            new SelectSitDB(mHandler).execute("", pref.getString(Utils.PREF_ID, ""));
         }
 
         lvClass.setAdapter(classListAdapter);

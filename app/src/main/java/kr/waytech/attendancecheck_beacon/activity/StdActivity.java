@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -27,8 +27,9 @@ public class StdActivity extends AppCompatActivity {
 
     public static final String INTENT_STD = "INTENTSTD";
     private TextView tvClass;
-    private Button btnSetting;
-    private Button btnAttend;
+    private ImageView btnSetting;
+    private ImageView btnAttend;
+    private ImageView btnNotice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,9 @@ public class StdActivity extends AppCompatActivity {
 
     private void findById(){
         tvClass = (TextView) findViewById(R.id.tvClass);
-        btnSetting = (Button) findViewById(R.id.btnSetting);
-        btnAttend = (Button) findViewById(R.id.btnAttend);
+        btnSetting = (ImageView) findViewById(R.id.btnSetting);
+        btnAttend = (ImageView) findViewById(R.id.btnAttend);
+        btnNotice = (ImageView) findViewById(R.id.btnNotice);
     }
 
     private void init(){
@@ -83,6 +85,14 @@ public class StdActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(StdActivity.this, AttendCheckActivity.class);
                 intent.putExtra(INTENT_STD, INTENT_STD);
+                startActivity(intent);
+            }
+        });
+        btnNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(StdActivity.this, ClassListActivity.class);
+                intent.putExtra(ClassListActivity.INTENT_CLASS, INTENT_STD);
                 startActivity(intent);
             }
         });

@@ -19,6 +19,8 @@ public class AttendListData {
 
     private ClassData classData;
 
+    private String selectCal;
+
 
     public AttendListData(String id, String name, int image) {
         this.id = id;
@@ -35,6 +37,14 @@ public class AttendListData {
         calIn = null;
         calOut= null;
         this.classData = classData;
+    }
+
+    public String getSelectCal() {
+        return selectCal;
+    }
+
+    public void setSelectCal(String selectCal) {
+        this.selectCal = selectCal;
     }
 
     public ClassData getClassData() {

@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FF5555"
+    >
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="46dp"
         android:text="현재 강의 목록"
-        android:textSize="20sp"/>
+        android:textSize="20dp"
+        android:padding="5dp"
+        android:background="@drawable/gra"
+        android:textColor="#000000"
+        />
 
     <ListView
         android:id="@+id/lvClass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp"></ListView>
+        android:layout_marginTop="5dp"
+        android:background="@drawable/list_back_"></ListView>
 
 </LinearLayout>

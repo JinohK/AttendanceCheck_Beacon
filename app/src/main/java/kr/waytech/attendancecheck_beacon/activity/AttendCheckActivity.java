@@ -1,6 +1,7 @@
 package kr.waytech.attendancecheck_beacon.activity;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,6 +26,7 @@ import java.util.Date;
 import kr.waytech.attendancecheck_beacon.R;
 import kr.waytech.attendancecheck_beacon.other.AttendListAdapter;
 import kr.waytech.attendancecheck_beacon.other.AttendListData;
+import kr.waytech.attendancecheck_beacon.other.Utils;
 import kr.waytech.attendancecheck_beacon.server.AttendData;
 import kr.waytech.attendancecheck_beacon.server.ClassData;
 import kr.waytech.attendancecheck_beacon.server.SelectAttendDB;
@@ -45,10 +47,13 @@ public class AttendCheckActivity extends AppCompatActivity {
 
     private ClassData classData;
     private ProgressDialog dialog;
+    private SharedPreferences pref;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private boolean isStd;
+
+    ArrayList<AttendListData> attendListDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +84,7 @@ public class AttendCheckActivity extends AppCompatActivity {
 //             args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
 
             // Uncomment this line to use dark theme
-            args.putInt(CaldroidFragment.THEME_RESOURCE, R.style.CaldroidDefault);
+            args.putInt(CaldroidFragment.THEME_RESOURCE, R.style.CaldroidDefaultDark);
 
             caldroidFragment.setArguments(args);
         }
@@ -94,14 +99,14 @@ public class AttendCheckActivity extends AppCompatActivity {
 
             @Override
             public void onSelectDate(Date date, View view) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(date);
+                Calendar selectCalendar = Calendar.getInstance();
+                selectCalendar.setTime(date);
 
                 tvDate.setText(dateFormat.format(date));
                 dialog = new ProgressDialog(AttendCheckActivity.this);
                 dialog.show();
                 if (isStd)
-                    ;
+                    new SelectAttendDB(mHandler).execute("", dateFormat.format(date), pref.getString(Utils.PREF_ID, ""));
                 else
                     new SelectAttendDB(mHandler).execute(classData.getClassName(), dateFormat.format(date));
             }
@@ -130,8 +135,9 @@ public class AttendCheckActivity extends AppCompatActivity {
     }
 
     private void init() {
-        adapter = new AttendListAdapter(this);
-        lvList.setAdapter(adapter);
+
+
+        pref = getSharedPreferences(getPackageName(), 0);
 
         classData = (ClassData) getIntent().getSerializableExtra(ClassListActivity.INTENT_CLASS);
         tvDate.setText(dateFormat.format(new Date()));
@@ -151,12 +157,19 @@ public class AttendCheckActivity extends AppCompatActivity {
         });
         if (getIntent().getStringExtra(StdActivity.INTENT_STD) != null) {
             isStd = true;
+            new SelectSitDB(mHandler).execute("", pref.getString(Utils.PREF_ID,""));
             Log.d(TAG, "학생");
         } else {
             Log.d(TAG, "교직원");
             isStd = false;
             new SelectSitDB(mHandler).execute(classData.getClassName());
         }
+
+        if(isStd)
+            adapter = new AttendListAdapter(this,true);
+        else
+            adapter = new AttendListAdapter(this);
+        lvList.setAdapter(adapter);
 
 
     }
@@ -167,20 +180,81 @@ public class AttendCheckActivity extends AppCompatActivity {
             switch (msg.what) {
                 case SelectSitDB.HANDLE_SELECT_OK:
                     ArrayList<AttendListData> data = (ArrayList<AttendListData>) msg.obj;
-                    adapter.setData(data);
-                    new SelectAttendDB(mHandler).execute(classData.getClassName(), dateFormat.format(new Date()));
+                    for(AttendListData datas : data) {
+                        datas.setSelectCal(tvDate.getText().toString());
+                    }
+                    if(isStd){
+                        attendListDatas = data;
+                        new SelectAttendDB(mHandler).execute("",dateFormat.format(new Date()), pref.getString(Utils.PREF_ID, ""));
+                    }else {
+                        adapter.setData(data);
+                        new SelectAttendDB(mHandler).execute(classData.getClassName(), dateFormat.format(new Date()));
+                    }
                     break;
 
                 case SelectSitDB.HANDLE_SELECT_FAIL:
                     break;
 
                 case SelectAttendDB.HANDLE_SELECT_OK:
+                    ArrayList<AttendData> ary = (ArrayList<AttendData>) msg.obj;
+                    adapter.reset();
 
+                    // 학생
                     if (isStd) {
+                        ArrayList<AttendListData> attendListData = new ArrayList<>();
+                        Log.d(TAG, ary.size() + " " + attendListDatas.size());
+                        for(int i = 0 ; i < ary.size() ; i++) {
+                            for (int j = 0; j < attendListDatas.size(); j++) {
+                                if(ary.get(i).getClassName().equals(attendListDatas.get(j).getClassData().getClassName())) {
+                                    Calendar calIn = ary.get(i).getCalIn();
+                                    Calendar calOut = ary.get(i).getCalOut();
+                                    Calendar calStart = attendListDatas.get(j).getClassData().getCalStart();
+                                    Calendar calEnd = attendListDatas.get(j).getClassData().getCalEnd();
+                                    calStart.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
+                                    calStart.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
+                                    calStart.set(Calendar.DATE, calIn.get(Calendar.DATE));
+                                    calEnd.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
+                                    calEnd.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
+                                    calEnd.set(Calendar.DATE, calIn.get(Calendar.DATE));
 
-                    } else {
-                        ArrayList<AttendData> ary = (ArrayList<AttendData>) msg.obj;
-                        adapter.reset();
+//                                Log.d(TAG, calIn.get(Calendar.HOUR_OF_DAY) + ":" + calIn.get(Calendar.MINUTE) + "," +
+//                                        calStart.get(Calendar.HOUR_OF_DAY) + ":" + calStart.get(Calendar.MINUTE));
+//                                Log.d(TAG, calOut.get(Calendar.HOUR_OF_DAY) + ":" + calOut.get(Calendar.MINUTE) + "," +
+//                                        calEnd.get(Calendar.HOUR_OF_DAY) + ":" + calEnd.get(Calendar.MINUTE));
+//                                Log.d(TAG, calIn.before(calStart) + "" + calOut.after(calEnd));
+                                    AttendListData d;
+                                    // 퇴실시간없을시
+                                    if (Integer.parseInt(ary.get(i).getOutTime().substring(0, 2)) == 0) {
+                                        d = new AttendListData(ary.get(i).getUserId(), ary.get(i).getClassName(), android.R.drawable.presence_invisible);
+                                        d.setCalIn(ary.get(i).getCalIn());
+                                        d.setCalOut(ary.get(i).getCalOut());
+                                        attendListData.add(d);
+                                        Log.d(TAG, ary.get(i).getOutTime().substring(0, 1));
+                                    }
+                                    // 정상
+                                    else if (calIn.before(calStart) && calOut.after(calEnd)) {
+                                        d = new AttendListData(ary.get(i).getUserId(), ary.get(i).getClassName(), android.R.drawable.presence_online);
+                                        d.setCalIn(ary.get(i).getCalIn());
+                                        d.setCalOut(ary.get(i).getCalOut());
+                                        attendListData.add(d);
+                                        Log.d(TAG, "ok");
+                                    }
+                                    // 지각, 출튀
+                                    else {
+                                        d = new AttendListData(ary.get(i).getUserId(), ary.get(i).getClassName(), android.R.drawable.presence_invisible);
+                                        d.setCalIn(ary.get(i).getCalIn());
+                                        d.setCalOut(ary.get(i).getCalOut());
+                                        attendListData.add(d);
+                                        Log.d(TAG, "other");
+                                    }
+                                }
+                            }
+                        }
+
+                        adapter.setData(attendListData);
+                    }
+                    // 교직원
+                    else {
                         ArrayList<AttendListData> datas = adapter.getData();
                         for (int i = 0; i < ary.size(); i++) {
 
@@ -204,6 +278,7 @@ public class AttendCheckActivity extends AppCompatActivity {
 //                                Log.d(TAG, calIn.before(calStart) + "" + calOut.after(calEnd));
                                     datas.get(j).setCalIn(calIn);
                                     datas.get(j).setCalOut(calOut);
+                                    datas.get(j).setSelectCal(tvDate.getText().toString());
                                     // 퇴실시간없을시
                                     if (Integer.parseInt(ary.get(i).getOutTime().substring(0, 2)) == 0) {
                                         datas.get(j).setImage(android.R.drawable.presence_invisible);

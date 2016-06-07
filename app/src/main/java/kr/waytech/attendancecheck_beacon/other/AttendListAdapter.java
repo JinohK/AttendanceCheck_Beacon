@@ -11,10 +11,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import kr.waytech.attendancecheck_beacon.R;
+import kr.waytech.attendancecheck_beacon.server.InsertAtdCompDB;
 
 /**
  * Created by Kim-Jinoh on 16. 5. 31..
@@ -26,9 +28,17 @@ public class AttendListAdapter extends BaseAdapter {
 
     private Context con;
 
+    private boolean goneAttend = false;
+
+    private int atdPos;
+
 
     public AttendListAdapter(Context con) {
         this.con = con;
+    }
+    public AttendListAdapter(Context con, boolean goneAttend) {
+        this.con = con;
+        this.goneAttend = goneAttend;
     }
 
     public void setData(ArrayList<AttendListData> data) {
@@ -82,6 +92,9 @@ public class AttendListAdapter extends BaseAdapter {
 
         ivStatus.setImageResource(listViewItem.getImage());
 
+        if(goneAttend)
+            ivCheck.setVisibility(View.GONE);
+
         ivCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,7 +106,8 @@ public class AttendListAdapter extends BaseAdapter {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-
+                                        new InsertAtdCompDB(mHandler).execute(listViewItem.getId(), listViewItem.getClassData().getClassName(), listViewItem.getSelectCal());
+                                        atdPos = pos;
                                     }
                                 }
                         ).setNegativeButton(con.getString(android.R.string.no), null).show();
@@ -107,10 +121,18 @@ public class AttendListAdapter extends BaseAdapter {
         @Override
         public void handleMessage(Message msg) {
             switch(msg.what){
+                case InsertAtdCompDB.HANDLE_INSERT_OK:
+                    data.get(atdPos).setImage(android.R.drawable.presence_online);
+                    notifyDataSetChanged();
+                    Toast.makeText(con, "출석인정되었습니다.", Toast.LENGTH_SHORT).show();
+                    break;
 
+                case InsertAtdCompDB.HANDLE_INSERT_FAIL:
+                    break;
             }
         }
     };
+
 
     public void reset(){
         for(int i = 0; i < data.size(); i++)

@@ -127,17 +127,18 @@ public class ClassSetActivity extends AppCompatActivity {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    while (lvBeacon.getChildCount() == 0) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    while (lvBeacon.getChildCount() == 0) {
+//                        try {
+//                            Thread.sleep(100);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
                     beaconListAdapter.setSelectPos(0);
                     lvBeacon.getChildAt(0).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 }
             });
+
 
             etClassName.setEnabled(false);
         }

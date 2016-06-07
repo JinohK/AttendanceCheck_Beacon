@@ -2,35 +2,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kr.waytech.attendancecheck_beacon">
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".activity.LoginActivity">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait"
+            >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"
+                    />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.SignActivity"/>
-        <activity android:name=".activity.EduActivity"/>
-        <activity android:name=".activity.StdActivity"/>
-        <activity android:name=".activity.SettingActivity"/>
-        <activity android:name=".activity.ClassSetActivity"/>
-        <activity android:name=".activity.ClassListActivity"/>
-        <activity android:name=".activity.AttendCheckActivity"
-            android:screenOrientation="landscape"/>
+        <activity android:name=".activity.SignActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.EduActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.StdActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.SettingActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ClassSetActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ClassListActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.AttendCheckActivity"
+            android:screenOrientation="landscape" />
 
+        <service android:name=".service.BeaconService"
+            android:screenOrientation="portrait"/>
 
-        <service android:name=".service.BeaconService"/>
+        <activity android:name=".activity.NoticeActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.NoticeWriteActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

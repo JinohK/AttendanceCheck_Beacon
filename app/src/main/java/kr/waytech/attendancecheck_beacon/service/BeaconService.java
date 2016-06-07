@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
@@ -36,6 +37,8 @@ public class BeaconService extends Service {
     private static final String TAG = "BeaconService";
     public static final String BROADCAST_BEACON_IN = "BEACONIN";
     public static final String BROADCAST_BEACON_OUT = "BEACONOUT";
+
+    public static final int HANDLE_TOAST = 134234;
 
     private static ArrayList<ClassData> classDataArrayList;
 
@@ -111,6 +114,7 @@ public class BeaconService extends Service {
 
                 case InsertAtdDB.HANDLE_INSERT_OK:
                     Log.d(TAG, "입실");
+                    Toast.makeText(getApplicationContext(), "강의실에 들어왔습니다(입실시간 입력)", Toast.LENGTH_SHORT).show();
                     mTypeInOut = TYPE_IN;
                     // 퇴실 체크 쓰레드 실행
                     new Thread(){
@@ -133,6 +137,8 @@ public class BeaconService extends Service {
                                             mTypeInOut = 0;
                                             calInTime = null;
                                             sendBroadcast(new Intent(BROADCAST_BEACON_OUT));
+                                            mHandler.obtainMessage(HANDLE_TOAST, "강의실을 나갔습니다(퇴실시간 입력)").sendToTarget();
+
                                         }
 
                                     } catch (InterruptedException e) {
@@ -185,6 +191,7 @@ public class BeaconService extends Service {
                                                 mTypeInOut = 0;
                                                 calInTime = null;
                                                 sendBroadcast(new Intent(BROADCAST_BEACON_OUT));
+                                                mHandler.obtainMessage(HANDLE_TOAST, "강의실을 나갔습니다").sendToTarget();
                                             }
 
                                         } catch (InterruptedException e) {
@@ -195,6 +202,10 @@ public class BeaconService extends Service {
                             }
                         }.start();
                     }
+                    break;
+
+                case HANDLE_TOAST:
+                    Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_SHORT).show();
                     break;
 
                 case UpdateAtdDB.HANDLE_INSERT_FAIL:
@@ -282,6 +293,7 @@ public class BeaconService extends Service {
                                     Intent intent = new Intent(BROADCAST_BEACON_IN);
                                     intent.putExtra(INTENT_CLASS, classData);
                                     sendBroadcast(intent);
+
 
 
 
