@@ -126,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     edit.putString(Utils.PREF_ID, data.getId());
                     edit.putString(Utils.PREF_TYPE, data.getType());
                     edit.putBoolean(Utils.PREF_AUTOLOGIN, true);
+                    edit.putString(Utils.PREF_NAME, data.getName());
                     edit.commit();
 
                     Intent intent = null;

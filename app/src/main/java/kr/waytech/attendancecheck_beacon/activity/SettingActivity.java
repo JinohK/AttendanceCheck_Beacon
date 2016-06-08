@@ -19,12 +19,15 @@ public class SettingActivity extends AppCompatActivity {
     private Button btn_logout;
     private SharedPreferences pref;
     private SharedPreferences.Editor edit;
+    private TextView tvId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         btn_logout = (Button) findViewById(R.id.btn_logout);
+        tvId = (TextView) findViewById(R.id.id);
+        tvId.setText(pref.getString(Utils.PREF_NAME,""));
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
