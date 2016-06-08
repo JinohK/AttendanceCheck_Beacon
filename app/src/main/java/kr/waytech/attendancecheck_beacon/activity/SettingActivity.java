@@ -36,6 +36,7 @@ public class SettingActivity extends AppCompatActivity {
 
                 stopService(new Intent(SettingActivity.this, BeaconService.class));
                 intent = new Intent(SettingActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 Toast.makeText(SettingActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
 
                 startActivity(intent);
