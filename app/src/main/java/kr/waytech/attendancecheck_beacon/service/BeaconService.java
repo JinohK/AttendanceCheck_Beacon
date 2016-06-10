@@ -55,7 +55,7 @@ public class BeaconService extends Service {
     private final int TIMEOUT_SLEEP_CYCLE = 5 * 1000;
 
     // 얼마 동안 비컨이 안잡히면 퇴실조치 할건지
-    private final int TIMEOUT_OUT = 10 * 1000;
+    private final int TIMEOUT_OUT = 20 * 1000;
     private int mTimeout;
 
     // 입실 / 퇴실 구분 TYPE_IN=입실함 (퇴실체크진행)

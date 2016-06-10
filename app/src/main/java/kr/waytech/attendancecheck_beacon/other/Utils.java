@@ -18,7 +18,7 @@ public class Utils {
     public static final String PREF_TYPE = "PREF_TYPE";
     public static final String PREF_AUTOLOGIN = "PREF_AUTOLOGIN";
     public static final String PREF_NAME = "PREF_NAME";
-    
+
     public static final String USER_STD = "학생";
     public static final String USER_EDU = "교직원";
 

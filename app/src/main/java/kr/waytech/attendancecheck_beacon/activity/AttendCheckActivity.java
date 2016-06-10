@@ -148,7 +148,7 @@ public class AttendCheckActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 AttendListData data = adapter.getItem(i);
                 SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-                if (data.getCalIn() != null) {
+                if (data.getImage() != android.R.drawable.presence_offline) {
                     Toast.makeText(AttendCheckActivity.this, "입실: " + format.format(data.getCalIn().getTime()) +
                             " 퇴실: " + format.format(data.getCalOut().getTime()), Toast.LENGTH_SHORT).show();
                 }
