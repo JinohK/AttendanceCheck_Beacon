@@ -19,7 +19,7 @@ public class SettingActivity extends AppCompatActivity {
     private Button btn_logout;
     private SharedPreferences pref;
     private SharedPreferences.Editor edit;
-    private TextView id;
+    private TextView tvId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,8 @@ public class SettingActivity extends AppCompatActivity {
         pref = getSharedPreferences(getPackageName(), 0);
         edit = pref.edit();
         btn_logout = (Button) findViewById(R.id.btn_logout);
+        tvId = (TextView) findViewById(R.id.id);
+        tvId.setText(pref.getString(Utils.PREF_NAME,""));
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,6 +40,7 @@ public class SettingActivity extends AppCompatActivity {
 
                 stopService(new Intent(SettingActivity.this, BeaconService.class));
                 intent = new Intent(SettingActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 Toast.makeText(SettingActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
 
                 startActivity(intent);
@@ -47,11 +50,8 @@ public class SettingActivity extends AppCompatActivity {
 
         TextView tvVersion = (TextView) findViewById(R.id.tvVersion);
         PackageInfo pi = null;
-        TextView id = (TextView) findViewById(R.id.id);
-        id.setText(pref.getString(Utils.PREF_NAME,""));
 
         try {
-
             pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             String verSion = pi.versionName;
             tvVersion.setText("  V " + verSion);
