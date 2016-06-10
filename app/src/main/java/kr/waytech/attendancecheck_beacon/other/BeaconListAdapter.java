@@ -1,10 +1,12 @@
 package kr.waytech.attendancecheck_beacon.other;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -81,7 +83,7 @@ public class BeaconListAdapter extends BaseAdapter {
         TextView tvMajor = (TextView) view.findViewById(R.id.tvMajor);
         TextView tvMinor = (TextView) view.findViewById(R.id.tvMajor);
         TextView tvRssi = (TextView) view.findViewById(R.id.tvRssi);
-
+        LinearLayout linear = (LinearLayout) view.findViewById(R.id.linear);
 
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
@@ -92,6 +94,9 @@ public class BeaconListAdapter extends BaseAdapter {
         tvMajor.setText(listViewItem.getMajor() + "");
         tvMinor.setText(listViewItem.getMinor() + "");
         tvRssi.setText(listViewItem.getRssi() + "");
+
+        if(listViewItem.getRssi() == 0 )
+            linear.setBackgroundColor(Color.parseColor("#3f51b5"));
 
         return view;
     }

@@ -19,18 +19,20 @@ public class SettingActivity extends AppCompatActivity {
     private Button btn_logout;
     private SharedPreferences pref;
     private SharedPreferences.Editor edit;
+    private TextView id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        pref = getSharedPreferences(getPackageName(), 0);
+        edit = pref.edit();
         btn_logout = (Button) findViewById(R.id.btn_logout);
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = null;
-                pref = getSharedPreferences(getPackageName(), 0);
-                edit = pref.edit();
+
                 edit.putBoolean(Utils.PREF_AUTOLOGIN, false);
                 edit.commit();
 
@@ -45,6 +47,8 @@ public class SettingActivity extends AppCompatActivity {
 
         TextView tvVersion = (TextView) findViewById(R.id.tvVersion);
         PackageInfo pi = null;
+        TextView id = (TextView) findViewById(R.id.id);
+        id.setText(pref.getString(Utils.PREF_NAME,""));
 
         try {
 
