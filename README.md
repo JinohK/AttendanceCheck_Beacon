@@ -1,3 +1,2 @@
-# AttendanceCheck_Beacon
-* Android Programming Project
-* Attendance Check with Beacon 
+
+안녕하세요 진오님 저는 비콘을 이용해서 프로젝트를 하고 있는 대학생 입니다. 깃에 올린 코드에 관하여 여쭤보고 싶은게 있는데 혹시 이메일 주소 알 수 있을까요?? 제 이메일은 ducjcs0303@naver.com입니다 ! 다른 연락 방법이 없어 이렇게 연락드립니다 죄송합니다 !
